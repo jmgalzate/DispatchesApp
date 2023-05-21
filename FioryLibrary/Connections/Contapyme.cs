@@ -32,7 +32,7 @@ public class Contapyme
     public string getAuth()
     {
         Uri endpoint = new Uri(this._connectionInformation.Server + "datasnap/rest/TBasicoGeneral/\"GetAuth\"/");
-        Logger.info("Conexión: petición a " + endpoint);
+        Logger.info("Connection: request sent to" + endpoint);
 
         Dictionary<string, string> objParams = new Dictionary<string, string>
         {
@@ -57,7 +57,7 @@ public class Contapyme
     public JObject process()
     {
         Uri endpoint = new Uri(this._connectionInformation.Server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-        Logger.info("Conexión: petición a " + endpoint);
+        Logger.info("Connection: request sent to" + endpoint);
 
         Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
         {
@@ -73,7 +73,7 @@ public class Contapyme
     public JObject load()
     {
         Uri endpoint = new Uri(this._connectionInformation.Server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-        Logger.info("Conexión: petición a " + endpoint);
+        Logger.info("Connection: request sent to" + endpoint);
         Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
         {
             {"accion", "LOAD" },
@@ -88,7 +88,7 @@ public class Contapyme
     public JObject save(JObject newOrder)
     {
         Uri endpoint = new Uri(this._connectionInformation.Server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-        Logger.info("Conexión: petición a " + endpoint);
+        Logger.info("Connection: request sent to" + endpoint);
         Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
         {
             {"accion", "SAVE" },
@@ -104,7 +104,7 @@ public class Contapyme
     public JObject unprocess()
     {
         Uri endpoint = new Uri(this._connectionInformation.Server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-        Logger.info("Conexión: petición a " + endpoint);
+        Logger.info("Connection: request sent to" + endpoint);
         Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
         {
             {"accion", "UNPROCESS" },
@@ -119,7 +119,7 @@ public class Contapyme
     public void closeAgent()
     {
         Uri endpoint = new Uri(this._connectionInformation.Server + "datasnap/rest/TBasicoGeneral/\"Logout\"/");
-        Logger.info("Conexión: petición a " + endpoint);
+        Logger.info("Connection: request sent to" + endpoint);
         JObject response = this._requestPost(endpoint, _setParameters(""));
     }
 
@@ -153,16 +153,16 @@ public class Contapyme
                 var payload = new StringContent(newPostJson, System.Text.Encoding.UTF8, "application/json");
 
                 Task<HttpResponseMessage> httpResponse = webclient.PostAsync(endpoint, payload);
-                Logger.info("Conexión: enviando petición a Contapyme");
+                Logger.info("Connection: request sent to" + endpoint + " with payload: " + newPostJson);
                 HttpResponseMessage httpResponseMessage = httpResponse.Result;
 
-                Logger.info("Conexión: la petición se envió de forma exitosa");
+                Logger.info("Connection: response received from" + endpoint + " with status code: " + httpResponseMessage.StatusCode + " and content: " + httpResponseMessage.Content.ReadAsStringAsync().Result);
                 return (JObject)JsonConvert.DeserializeObject(httpResponseMessage.Content.ReadAsStringAsync().Result)!;
             }
         }
         catch (Exception e)
         {
-            Logger.error("Conexión: " + e.Message);
+            Logger.error("Connection: " + e.Message);
             return (JObject)JsonConvert.DeserializeObject("{ }")!;
         }
 
@@ -187,9 +187,9 @@ public class Contapyme
                 if (responseHeader != null)
                 {
                     if (responseHeader["resultado"]!.ToString() == "false")
-                        Logger.error("API Response: " + responseHeader["mensaje"]);
+                        Logger.error("Contapyme response: " + responseHeader["mensaje"]);
                     else
-                        Logger.info("API Response: La operación se ejecutó de forma exitosa");
+                        Logger.info("Contapyme response: the request was processed successfully");
                 }
 
                 if (objTemp.TryGetValue("respuesta", out tokTemp) && (tokTemp != null))
