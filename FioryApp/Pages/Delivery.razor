@@ -1,0 +1,193 @@
+﻿@page "/Delivery"
+
+@inject NavigationManager NavManager
+@inject IJSRuntime jsRuntime
+
+@using FioryLibrary.Connections;
+@using FioryLibrary.Operations;
+@using FioryLibrary.Sales;
+
+
+<audio id="wrongItem">
+    <source src="audio/notaded.mp3">
+    Your browser does not support the audio element.
+</audio>
+
+<input type="number" @bind="orderNumber" @bind:event="oninput" />
+<button onclick="@Load" type="button" class="btn btn-outline-primary deliveryButton">Cargar</button>
+
+@if (showPage == true)
+{
+    <button onclick="@Close" type="button" class="btn btn-outline-success deliveryButton">Cerrar</button>
+    <button onclick="@Save" type="button" class="btn btn-outline-warning deliveryButton">Guardar</button>
+    <div class="container text-center" style="margin-top: 20px;">
+        <div class="row">
+            <div class="col" id="dispatchContainer" style="margin-bottom: 10px;">
+                <div class="row">
+                    <div class="card">
+                        <h5 class="card-title">Número de Orden: @this.orderNumber</h5>
+                    </div>
+                </div>
+                <div class="row">
+                    <div style="padding:1rem;">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Código</th>
+                                    <th scope="col">Requeridos</th>
+                                    <th scope="col">Despacho</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (scan.scannedProducts.Count > 0)
+                                {
+                                    @foreach (ScannedProduct product in scan.scannedProducts)
+                                    {
+                                        <tr>
+                                            <td>@product.sku</td>
+                                            <td>@product.requested</td>
+                                            <td>@product.quantity</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                Solicitados: @order.totalProductsToScan
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                Despachados: @scan.indexScanned
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col" id="dispatchContainer">
+                <div class="row">
+                    <form @onsubmit="Enter">
+                        <div class="input-group input-group-md mb-2">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">EAN:</span>
+                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-md" @bind="item">
+                        </div>
+                    </form>
+                </div>
+                <div class="row justify-content-md-center">
+                    <div class="col-md-auto">
+                        <div class="card" style="width: 23rem;">
+                            <ul class="list-group list-group-flush">
+                                @foreach (string item in items)
+                                {
+                                    <li class="list-group-item">@item</li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@code{
+
+    public Contapyme api = new Contapyme();
+    public Masterdata productsInfo = new Masterdata();
+    public Order order = new Order();
+    public Scanned scan = new Scanned();
+
+    public int orderNumber;
+    public string item;
+    public List<string> items = new List<string>();
+    public Dispatch orderDispatched = new Dispatch();
+
+    public bool showPage = false;
+
+    public void Load()
+    {
+        Logger.info("Scanner: iniciando operación para la orden " + this.orderNumber);
+        this.api.setContapyme();
+        this.api.orderNumber = this.orderNumber;
+
+        this.order.setOrderNumber(api.orderNumber);
+        this.order.setOrderDetails(api.load());
+
+        this.scan.setListScannedProducts(order.products);
+        this.showPage = true;
+    }
+
+    public void Enter()
+    {
+        if (!string.IsNullOrWhiteSpace(this.item))
+        {
+            string sku = this.productsInfo.vlookup(this.item);
+            if (string.IsNullOrEmpty(sku))
+            {
+                items.Add(this.item + ": no existe.");
+                Logger.warning("Scanner: El item "+this.item+" no existe en la base de productos");
+                this.jsCalledMethod("wrongItem");
+            }
+            else
+            {
+                var existsInOrder = order.vlookup(sku);
+                if (existsInOrder == true)
+                {
+                    scan.addProduct(sku, this.item);
+                    items.Add(this.item);
+                    scan.indexScanned++;
+                }
+                else
+                {
+                    items.Add(this.item + ": no requerido.");
+                    Logger.warning("Scanner: El item " + this.item + " no fue solicitado por el cliente");
+                    this.jsCalledMethod("wrongItem");
+                }
+            }
+        }
+        this.item = string.Empty;
+    }
+
+    public void setDispatch()
+    {
+        this.orderDispatched.orderNumber = this.order.orderNumber;
+        this.orderDispatched.setSkuDetails(scan.scannedProducts);
+        this.orderDispatched.setListOfProducts(order.products);
+        this.orderDispatched.setOrderDetails(order.orderJson!);
+        Sale.exportReport(orderDispatched.orderNumber, orderDispatched.orderJson!, order.products, orderDispatched.products);
+    }
+
+    public void Close()
+    {
+        Logger.info("Scanner: cierre de la orden "+this.orderNumber+" sin guardar cambios en Contapyme.");
+        this.setDispatch();
+        this.api.closeAgent();
+        this.goToDispatch();
+
+    }
+
+    public void Save()
+    {
+        Logger.info("Scanner: cierre de la orden " + this.orderNumber + " guardardando cambios en Contapyme.");
+        this.setDispatch();
+        this.api.save(this.orderDispatched.orderJson);
+        this.api.process();
+        this.api.closeAgent();
+        this.goToDispatch();
+
+    }
+
+    public void goToDispatch() => NavManager.NavigateTo("/");
+
+    public void jsCalledMethod(string idElement)
+    {
+        jsRuntime.InvokeVoidAsync("playAudio", idElement);
+    }
+}

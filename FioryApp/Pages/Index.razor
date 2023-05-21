@@ -1,0 +1,29 @@
+﻿@page "/"
+@inject NavigationManager NavManager
+@inject IJSRuntime jsRuntime;
+@using System.IO;
+@using System.Reflection;
+@using FioryLibrary.Connections;
+
+<div class="row">
+    <div class="col-sm-9 p-3"><h1>Sistema de Despacho Fiory</h1></div>
+    <div class="col"><button onclick="@goToDispatch" type="button" class="btn btn-outline-secondary"><i class="oi oi-plus"></i>Agregar Despacho</button></div>
+</div>
+
+<p>Estas son las órdenes que tienes en la carpeta: @folderRoot</p>
+
+@if (filesInRoot.Count > 0)
+{
+    <ul>
+        @foreach (string file in filesInRoot)
+        {
+            <li>@file</li>
+        }
+    </ul>
+}
+
+@code {
+    public void goToDispatch() => NavManager.NavigateTo("/Delivery");
+    public string folderRoot => ConfigFiles.getReportFilesPath();
+    public List<string> filesInRoot => ConfigFiles.getFilesInFolder(folderRoot);
+}

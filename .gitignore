@@ -1,0 +1,23 @@
+###> LOCAL FOLDER
+
+.DS_Store/
+.idea/
+.vs/
+
+###< END LOCAL FOLDERS
+
+###> PROJECT FILES
+Fiory.sln
+
+obj/
+
+FioryApp/bin/
+FioryApp/obj/
+
+FioryCli/bin/
+FioryCli/obj/
+
+FioryLibrary/bin/
+FioryLibrary/obj/
+
+###<END PROJECT FILES

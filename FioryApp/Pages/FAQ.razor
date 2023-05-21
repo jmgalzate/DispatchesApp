@@ -1,0 +1,82 @@
+﻿@page "/FAQ"
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">¿Qué hago si no me carga la orden?</h5>
+        <ol class="list-group list-group-flush">
+            <li class="list-group-item">Valida que el número de la orden esté bien escrito, sin espacios.</li>
+            <li class="list-group-item">Confirma que el número de órden exista en Contapyme.</li>
+            <li class="list-group-item">Debes de escalarlo con Johana para validar que la API esté funcionando correctamente.</li>
+        </ol>
+    </div>
+</div>
+
+<br />
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Qué hacen los botones Cargar, Cerrar, Guardar</h5>
+        <ol class="list-group list-group-flush">
+            <li class="list-group-item"><b>Cargar</b> abre una conexión con Contapyme, consulta el pedido en Contapyme y lo procesa, lo que significa que lo prepara para una eventual modificación.</li>
+            <li class="list-group-item"><b>Cerrar</b> desprocesa el pedido, y cierra la conexión con Contapyme.</li>
+            <li class="list-group-item"><b>Guardar</b> guarda las modificaciones en Contapyme, desprocesa el pedido, y cierra la conexión con Contapyme.</li>
+        </ol>
+    </div>
+</div>
+
+<br />
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Creación de archivos .json y .txt.</h5>
+        <ol class="list-group list-group-flush">
+            <li class="list-group-item">El archivo actual_{orden}.json se crea al momento que le das Cargar a la orden</li>
+            <li class="list-group-item">Los archivos nuevo_{orden}.json y reporte_{orden}.txt se crean cuando das clic en Cerrar o Guardar</li>
+        </ol>
+    </div>
+</div>
+
+<br />
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">¿Puedo agregar un producto que no estaba en la orden inicial?</h5>
+        <p class="card-text">No. Si el SKU no fue solicitado en la orden inicial, el programa no permite cargarlo.</p>
+    </div>
+</div>
+
+<br />
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">¿Qué hago si necesito agregar un producto que no estaba en la orden inicial?</h5>
+        <p class="card-text">Puedes editar el pedido en Contapyme y agregar el producto, y después, cargalo en esta aplicación para iniciar el proceso de Escaneo.</p>
+    </div>
+</div>
+
+<br />
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Guardé el pedido por error, y necesito cargar a Contapyme el pedido original ¿Qué hago?</h5>
+        <p class="card-text">Debes de escalarle la solicitud a Johana, le envías el archivo "actual_orden.json" que se genera como back-up, ella se encargará de subirlo nuevamente a Contapyme</p>
+    </div>
+</div>
+
+<br />
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Terminé de escanear, pero cerré la aplicación por error, y no guardé ¿Qué hago?</h5>
+        <p class="card-text">Debes de escalarle la solicitud a Johana, le envías el archivo "nuevo_orden.json" que se genera como back-up, ella se encargará de subirlo a Contapyme</p>
+    </div>
+</div>
+
+<br />
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Tengo nuevas sugerencias para la aplicación ¿Se pueden añadir?</h5>
+        <p class="card-text">Puedes detallarle tu idea a Johana, le explicas muy bien el escenario. Será revisado y te contaremos si es viable o no.</p>
+    </div>
+</div>
