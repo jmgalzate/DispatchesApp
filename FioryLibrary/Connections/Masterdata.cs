@@ -31,7 +31,7 @@ public class Masterdata
 
                 this.listProductDetails.Add(newProduct);
             }
-            Logger.info("Master Data: Lista de productos cargada con éxito");
+            Logger.info("Master Data: Products loaded");
         } catch (Exception ex)
         {
             Logger.error("Master Data: "+ex.Message);
