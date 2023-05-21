@@ -43,40 +43,43 @@ public class Dispatch : Sale
     {
         foreach (var x in this.ScannedProducts!)
         {
-            foreach (var y in tempList)
+            if (x.quantity > 0)
             {
-                if (x.sku == y.irecurso)
+                foreach (var y in tempList)
                 {
-
-                    int nRecurso = x.quantity;
-                    decimal vlr = nRecurso * decimal.Parse(y.mprecio!);
-                    decimal dcto = decimal.Parse(y.qporcdescuento!) / 100;
-                    decimal vlrDescuento = dcto * vlr;
-
-                    this.products.Add(new Product
+                    if (x.sku == y.irecurso)
                     {
-                        irecurso = y.irecurso,
-                        itiporec = y.itiporec,
-                        icc = y.icc,
-                        sobserv = y.sobserv,
-                        dato1 = y.dato1,
-                        dato2 = y.dato2,
-                        dato3 = y.dato3,
-                        dato4 = y.dato4,
-                        dato5 = y.dato5,
-                        dato6 = y.dato6,
-                        iinventario = y.iinventario,
-                        qrecurso = x.quantity.ToString(),
-                        mprecio = y.mprecio,
-                        qporcdescuento = y.qporcdescuento,
-                        qporciva = y.qporciva,
-                        mvrtotal = (vlr - vlrDescuento).ToString(),
-                        valor1 = y.valor1,
-                        valor2 = y.valor2,
-                        valor3 = y.valor3,
-                        valor4 = y.valor4,
-                        qrecurso2 = y.qrecurso2
-                    });
+
+                        int nRecurso = x.quantity;
+                        decimal vlr = nRecurso * decimal.Parse(y.mprecio!);
+                        decimal dcto = decimal.Parse(y.qporcdescuento!) / 100;
+                        decimal vlrDescuento = dcto * vlr;
+
+                        this.products.Add(new Product
+                        {
+                            irecurso = y.irecurso,
+                            itiporec = y.itiporec,
+                            icc = y.icc,
+                            sobserv = y.sobserv,
+                            dato1 = y.dato1,
+                            dato2 = y.dato2,
+                            dato3 = y.dato3,
+                            dato4 = y.dato4,
+                            dato5 = y.dato5,
+                            dato6 = y.dato6,
+                            iinventario = y.iinventario,
+                            qrecurso = x.quantity.ToString(),
+                            mprecio = y.mprecio,
+                            qporcdescuento = y.qporcdescuento,
+                            qporciva = y.qporciva,
+                            mvrtotal = (vlr - vlrDescuento).ToString(),
+                            valor1 = y.valor1,
+                            valor2 = y.valor2,
+                            valor3 = y.valor3,
+                            valor4 = y.valor4,
+                            qrecurso2 = y.qrecurso2
+                        });
+                    }
                 }
             }
         }
