@@ -19,10 +19,10 @@ public class Settings
             this._path = ConfigFiles.getConfigFilesPath("appsettings.json");
             this._appsettings = File.ReadAllText(this._path);
             this._connection = JsonConvert.DeserializeObject<ConnectionStrings>(this._appsettings);
-            Logger.info("Config: las configuraciones se cargaron correctamente");
+            Logger.info("AppSettings: file loaded");
         } catch (Exception ex)
         {
-            Logger.error("Config: " + ex.Message);
+            Logger.error("AppSettings: " + ex.Message);
         }
         
     }
