@@ -113,7 +113,7 @@
 
     public void Load()
     {
-        Logger.info("Scanner: iniciando operación para la orden " + this.orderNumber);
+        Logger.info("Scan Operation: the operation for scanning is started for order " + this.orderNumber);
         this.api.setContapyme();
         this.api.orderNumber = this.orderNumber;
 
@@ -132,7 +132,7 @@
             if (string.IsNullOrEmpty(sku))
             {
                 items.Add(this.item + ": no existe.");
-                Logger.warning("Scanner: El item "+this.item+" no existe en la base de productos");
+                Logger.warning("Scan Operation: the item "+this.item+" does not exist in the products Master Data.");
                 this.jsCalledMethod("wrongItem");
             }
             else
@@ -147,7 +147,7 @@
                 else
                 {
                     items.Add(this.item + ": no requerido.");
-                    Logger.warning("Scanner: El item " + this.item + " no fue solicitado por el cliente");
+                    Logger.warning("Scan Operation: the item " + this.item + " was not required in the order.");
                     this.jsCalledMethod("wrongItem");
                 }
             }
@@ -166,7 +166,7 @@
 
     public void Close()
     {
-        Logger.info("Scanner: cierre de la orden "+this.orderNumber+" sin guardar cambios en Contapyme.");
+        Logger.info("Scan Operation: order "+this.orderNumber+" closed without save changes in Contapyme.");
         this.setDispatch();
         this.api.closeAgent();
         this.goToDispatch();
@@ -175,7 +175,7 @@
 
     public void Save()
     {
-        Logger.info("Scanner: cierre de la orden " + this.orderNumber + " guardardando cambios en Contapyme.");
+        Logger.info("Scan Operation: order " + this.orderNumber + " saved in Contapyme");
         this.setDispatch();
         this.api.save(this.orderDispatched.orderJson);
         this.api.process();
