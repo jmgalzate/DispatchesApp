@@ -3,6 +3,9 @@
 .DS_Store/
 .idea/
 .vs/
+FioryApp/.DS_Store
+FioryCLI/.DS_Store
+FioryLibrary/.DS_Store
 
 ###< END LOCAL FOLDERS
 
