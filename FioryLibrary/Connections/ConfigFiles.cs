@@ -30,7 +30,7 @@ public static class ConfigFiles
 
         path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-		path += $"/FioryApp{s}Exports{s}";
+		path += $"{s}FioryApp{s}Exports{s}";
         bool exists = System.IO.Directory.Exists(path);
         if (!exists)
             System.IO.Directory.CreateDirectory(path);
