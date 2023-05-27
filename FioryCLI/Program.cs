@@ -28,11 +28,11 @@ class Fiory
         {
 
             Console.Write("Ingresa el pedido: ");
-            apiAgente.orderNumber = int.Parse(Console.ReadLine()!);
+            apiAgente.OrderNumber = int.Parse(Console.ReadLine()!);
             apiAgente.process();
 
             var order = new Order();
-            order.setOrderNumber(apiAgente.orderNumber);
+            order.setOrderNumber(apiAgente.OrderNumber);
             order.setOrderDetails(apiAgente.load());
 
             var scanControl = new Scanned();

@@ -1,23 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace FioryLibrary.Connections;
 
 public class Contapyme
 {
-    public int orderNumber;
+    public int OrderNumber;
     private Random _random = new Random();
     private JObject[] _operationsArray = new JObject[1];
     private ConnectionStrings _connectionInformation = new ConnectionStrings();
 
-    public string[] _arrParams = new string[4];
+    private string[] _arrParams = new string[4];
 
     public Contapyme()
     {
-        this.orderNumber = 0;
+        this.OrderNumber = 0;
     }
 
     public void setContapyme()
@@ -125,7 +122,7 @@ public class Contapyme
 
     private JObject[] _getOperations()
     {
-        string operations = "{\"inumoper\": \"" + (this.orderNumber) + "\", \"itdoper\": \"ORD1\"}";
+        string operations = "{\"inumoper\": \"" + (this.OrderNumber) + "\", \"itdoper\": \"ORD1\"}";
         this._operationsArray[0] = JObject.Parse(operations);
         return this._operationsArray;
     }

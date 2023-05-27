@@ -115,9 +115,9 @@
     {
         Logger.info("Scan Operation: the operation for scanning is started for order " + this.orderNumber);
         this.api.setContapyme();
-        this.api.orderNumber = this.orderNumber;
+        this.api.OrderNumber = this.orderNumber;
 
-        this.order.setOrderNumber(api.orderNumber);
+        this.order.setOrderNumber(api.OrderNumber);
         this.order.setOrderDetails(api.load());
 
         this.scan.setListScannedProducts(order.products);
