@@ -3,6 +3,13 @@ using Newtonsoft.Json.Linq;
 
 namespace FioryLibrary.Connections;
 
+/*
+ * TODO update the methods to use the new structure for JObject and JArray responses
+ * TODO create a method for reading the Header and check if the program can continue or not and export it to the logs
+ * TODO unify the _processRequest methods
+**/
+
+
 public class Contapyme
 {
     public int OrderNumber;
@@ -112,6 +119,17 @@ public class Contapyme
         JObject response = this._requestPost(endpoint, _setParameters(objSend));
         return this._processRequest(response);
     }
+    
+    public JArray getProducts()
+    {
+        JArray products = new JArray();
+        Uri endpoint = new Uri(this._connectionInformation.Server + "datasnap/rest/TCatElemInv/\"GetListaElemInv\"/");
+        
+        string objSend = "{\"datospagina\":{\"cantidadregistros\":\"50000\",\"pagina\":\"\"},\"camposderetorno\":[\"irecurso\",\"nrecurso\",\"clase2\"]}";
+        
+        JObject response = this._requestPost(endpoint, _setParameters(objSend));
+        return this._processRequestProducts(response);
+    }
 
     public void closeAgent()
     {
@@ -201,5 +219,43 @@ public class Contapyme
         }
 
         return objTemp!;
+    }
+    
+    private JArray _processRequestProducts(JObject response)
+    {
+        JArray? arrTemp;
+        JObject? objTemp = null;
+        JToken? tokTemp;
+        JObject? responseHeader = null;
+
+        if (response.TryGetValue("result", out tokTemp) && (tokTemp != null))
+        {
+            arrTemp = (JArray)tokTemp;
+            if ((arrTemp != null) && (arrTemp.Count > 0))
+            {
+                objTemp = (JObject)arrTemp[0];
+
+                responseHeader = (JObject)objTemp["encabezado"]!;
+
+                if (responseHeader != null)
+                {
+                    if (responseHeader["resultado"]!.ToString() == "false")
+                        Logger.error("Contapyme response: " + responseHeader["mensaje"]);
+                    else
+                        Logger.info("Contapyme response: the request was processed successfully");
+                }
+
+                if (objTemp.TryGetValue("respuesta", out tokTemp) && (tokTemp != null))
+                {
+                    objTemp = (JObject)tokTemp;
+                    if (objTemp.TryGetValue("datos", out tokTemp) && (tokTemp != null))
+                    {
+                        return (JArray)tokTemp;
+                    }
+                }
+            }
+        }
+
+        return new JArray();
     }
 }
