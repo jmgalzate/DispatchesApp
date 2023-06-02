@@ -100,7 +100,7 @@
 @code{
 
     public Contapyme api = new Contapyme();
-    public Masterdata productsInfo = new Masterdata();
+    public Masterdata productsInfo;
     public Order order = new Order();
     public Scanned scan = new Scanned();
 
@@ -115,6 +115,7 @@
     {
         Logger.info("Scan Operation: the operation for scanning is started for order " + this.orderNumber);
         this.api.setContapyme();
+        this.productsInfo = new Masterdata(api.getProducts());
         this.api.OrderNumber = this.orderNumber;
 
         this.order.setOrderNumber(api.OrderNumber);

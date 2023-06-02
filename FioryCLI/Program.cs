@@ -12,9 +12,8 @@ class Fiory
     static void Main(string[] args)
     {
         var apiAgente = new Contapyme();
-        var masterData = new Masterdata();
-
         apiAgente.setContapyme();
+        var masterData = new Masterdata(apiAgente.getProducts());
 
         bool workNewOrder;
         bool scanOperationControl;

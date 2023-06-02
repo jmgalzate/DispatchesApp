@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Collections.Generic;
 using System.Reflection;
+using Newtonsoft.Json.Linq;
 
 namespace FioryLibrary.Connections;
 
@@ -9,7 +10,7 @@ public class Masterdata
 
     public List<Product> listProductDetails = new List<Product>();
 
-    public Masterdata() => this.getProducts();
+    public Masterdata(JArray products) => this.setProducts(products);
 
     private void getProducts()
     {
@@ -35,6 +36,21 @@ public class Masterdata
         } catch (Exception ex)
         {
             Logger.error("Master Data: "+ex.Message);
+        }
+    }
+
+    private void setProducts(JArray products)
+    {
+        foreach (var product in products)
+        {
+            var newProduct = new Product()
+            {
+                sku = product["irecurso"].ToString(),
+                name = product["nrecurso"].ToString(),
+                ean = product["clase2"].ToString()
+            };
+
+            this.listProductDetails.Add(newProduct);
         }
     }
 
