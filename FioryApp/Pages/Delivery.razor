@@ -113,6 +113,7 @@
 
     public void Load()
     {
+        Logger.createLogFile().GetAwaiter().GetResult();
         Logger.info("Scan Operation: the operation for scanning is started for order " + this.orderNumber);
         this.api.setContapyme();
         this.productsInfo = new Masterdata(api.getProducts());
