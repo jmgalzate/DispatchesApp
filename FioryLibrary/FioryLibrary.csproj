@@ -13,7 +13,6 @@
     <None Remove="Sales\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Connections\" />
     <Folder Include="Operations\" />
     <Folder Include="Sales\" />
   </ItemGroup>

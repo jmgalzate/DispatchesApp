@@ -3,13 +3,6 @@ using Newtonsoft.Json.Linq;
 
 namespace FioryLibrary.Connections;
 
-/*
- * TODO update the methods to use the new structure for JObject and JArray responses
- * TODO create a method for reading the Header and check if the program can continue or not and export it to the logs
- * TODO unify the _processRequest methods
-**/
-
-
 public class Contapyme
 {
     public int OrderNumber;
@@ -36,7 +29,7 @@ public class Contapyme
     public string getAuth()
     {
         Uri endpoint = new Uri(this._connectionInformation.Server + "datasnap/rest/TBasicoGeneral/\"GetAuth\"/");
-        Logger.info("Connection: request sent to" + endpoint);
+        Logger.info("Connection: sending request to " + endpoint);
 
         Dictionary<string, string> objParams = new Dictionary<string, string>
         {
@@ -48,11 +41,12 @@ public class Contapyme
         string objSend = JsonConvert.SerializeObject(objParams, Formatting.None);
         JObject response = this._requestPost(endpoint, _setParameters(objSend));
 
-        JToken? tokTemp = null;
-        JObject objTemp = this._processRequest(response);
-
+        
+        (JObject header, JObject body) = this._processRequest(response);
+        JObject objTemp = (JObject)body["datos"]!;
+        
         string keyAgente = "";
-        if (objTemp.TryGetValue("keyagente", out tokTemp) && (tokTemp != null))
+        if (objTemp.TryGetValue("keyagente", out JToken? tokTemp))
             keyAgente = (string)tokTemp!;
 
         return keyAgente;
@@ -61,7 +55,7 @@ public class Contapyme
     public JObject process()
     {
         Uri endpoint = new Uri(this._connectionInformation.Server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-        Logger.info("Connection: request sent to" + endpoint);
+        Logger.info("Connection: sending request to " + endpoint);
 
         Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
         {
@@ -71,13 +65,16 @@ public class Contapyme
 
         string objSend = JsonConvert.SerializeObject(objParams, Formatting.None);
         JObject response = this._requestPost(endpoint, _setParameters(objSend));
-        return this._processRequest(response);
+        (JObject header, JObject body) = this._processRequest(response);
+        JObject objTemp = (JObject)body["datos"]!;
+        
+        return objTemp;
     }
 
     public JObject load()
     {
         Uri endpoint = new Uri(this._connectionInformation.Server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-        Logger.info("Connection: request sent to" + endpoint);
+        Logger.info("Connection: sending request to " + endpoint);
         Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
         {
             {"accion", "LOAD" },
@@ -86,13 +83,16 @@ public class Contapyme
 
         string objSend = JsonConvert.SerializeObject(objParams, Formatting.None);
         JObject response = this._requestPost(endpoint, _setParameters(objSend));
-        return this._processRequest(response);
+        (JObject header, JObject body) = this._processRequest(response);
+        JObject objTemp = (JObject)body["datos"]!;
+        
+        return objTemp;
     }
 
     public JObject save(JObject newOrder)
     {
         Uri endpoint = new Uri(this._connectionInformation.Server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-        Logger.info("Connection: request sent to" + endpoint);
+        Logger.info("Connection: sending request to " + endpoint);
         Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
         {
             {"accion", "SAVE" },
@@ -102,13 +102,16 @@ public class Contapyme
 
         string objSend = JsonConvert.SerializeObject(objParams, Formatting.None);
         JObject response = this._requestPost(endpoint, _setParameters(objSend));
-        return this._processRequest(response);
+        (JObject header, JObject body) = this._processRequest(response);
+        JObject objTemp = (JObject)body["datos"]!;
+        
+        return objTemp;
     }
 
     public JObject unprocess()
     {
         Uri endpoint = new Uri(this._connectionInformation.Server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-        Logger.info("Connection: request sent to" + endpoint);
+        Logger.info("Connection: sending request to " + endpoint);
         Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
         {
             {"accion", "UNPROCESS" },
@@ -117,24 +120,31 @@ public class Contapyme
 
         string objSend = JsonConvert.SerializeObject(objParams, Formatting.None);
         JObject response = this._requestPost(endpoint, _setParameters(objSend));
-        return this._processRequest(response);
+        (JObject header, JObject body) = this._processRequest(response);
+        JObject objTemp = (JObject)body["datos"]!;
+        
+        return objTemp;
     }
     
     public JArray getProducts()
     {
         JArray products = new JArray();
         Uri endpoint = new Uri(this._connectionInformation.Server + "datasnap/rest/TCatElemInv/\"GetListaElemInv\"/");
+        Logger.info("Connection: sending request to " + endpoint);
         
         string objSend = "{\"datospagina\":{\"cantidadregistros\":\"50000\",\"pagina\":\"\"},\"camposderetorno\":[\"irecurso\",\"nrecurso\",\"clase2\"]}";
         
         JObject response = this._requestPost(endpoint, _setParameters(objSend));
-        return this._processRequestProducts(response);
+        (JObject header, JObject body) = this._processRequest(response);
+        JArray objTemp = (JArray)body["datos"]!;
+        
+        return objTemp;
     }
 
     public void closeAgent()
     {
         Uri endpoint = new Uri(this._connectionInformation.Server + "datasnap/rest/TBasicoGeneral/\"Logout\"/");
-        Logger.info("Connection: request sent to" + endpoint);
+        Logger.info("Connection: sending request to " + endpoint);
         JObject response = this._requestPost(endpoint, _setParameters(""));
     }
 
@@ -148,7 +158,6 @@ public class Contapyme
     private Dictionary<string, Array> _setParameters(string dataJson)
     {
         this._arrParams[0] = dataJson;
-        Logger.info("Payload: " + dataJson);
 
         Dictionary<string, Array> objSend = new Dictionary<string, Array>
         {
@@ -168,10 +177,10 @@ public class Contapyme
                 var payload = new StringContent(newPostJson, System.Text.Encoding.UTF8, "application/json");
 
                 Task<HttpResponseMessage> httpResponse = webclient.PostAsync(endpoint, payload);
-                Logger.info("Connection: request sent to" + endpoint + " with payload: " + newPostJson);
+                Logger.info("Connection: request payload = " + newPostJson);
                 HttpResponseMessage httpResponseMessage = httpResponse.Result;
 
-                Logger.info("Connection: response received from" + endpoint + " with status code: " + httpResponseMessage.StatusCode + " and content: " + httpResponseMessage.Content.ReadAsStringAsync().Result);
+                Logger.info("Connection: response received from " + endpoint + " with status code: " + httpResponseMessage.StatusCode);
                 return (JObject)JsonConvert.DeserializeObject(httpResponseMessage.Content.ReadAsStringAsync().Result)!;
             }
         }
@@ -183,79 +192,29 @@ public class Contapyme
 
     }
 
-    private JObject _processRequest(JObject response)
+    private (JObject, JObject) _processRequest(JObject response)
     {
-        JArray? arrTemp;
-        JObject? objTemp = null;
         JToken? tokTemp;
-        JObject? responseHeader = null;
+        JObject responseHeader = new JObject();
+        JObject responseAnswer = new JObject();
 
-        if (response.TryGetValue("result", out tokTemp) && (tokTemp != null))
+        if (!response.TryGetValue("result", out tokTemp))
         {
-            arrTemp = (JArray)tokTemp;
-            if ((arrTemp != null) && (arrTemp.Count > 0))
-            {
-                objTemp = (JObject)arrTemp[0];
-
-                responseHeader = (JObject)objTemp["encabezado"]!;
-
-                if (responseHeader != null)
-                {
-                    if (responseHeader["resultado"]!.ToString() == "false")
-                        Logger.error("Contapyme response: " + responseHeader["mensaje"]);
-                    else
-                        Logger.info("Contapyme response: the request was processed successfully");
-                }
-
-                if (objTemp.TryGetValue("respuesta", out tokTemp) && (tokTemp != null))
-                {
-                    objTemp = (JObject)tokTemp;
-                    if (objTemp.TryGetValue("datos", out tokTemp) && (tokTemp != null))
-                    {
-                        objTemp = (JObject)tokTemp;
-                    }
-                }
-            }
+            Logger.error("Contapyme response: the request was not processed successfully; please check the server connection is working");
+            return (responseHeader, responseAnswer);
         }
 
-        return objTemp!;
-    }
-    
-    private JArray _processRequestProducts(JObject response)
-    {
-        JArray? arrTemp;
-        JObject? objTemp = null;
-        JToken? tokTemp;
-        JObject? responseHeader = null;
-
-        if (response.TryGetValue("result", out tokTemp) && (tokTemp != null))
+        responseHeader = (JObject)response["result"]![0]!["encabezado"]!;
+        
+        if (responseHeader["resultado"]!.ToString() == "false")
         {
-            arrTemp = (JArray)tokTemp;
-            if ((arrTemp != null) && (arrTemp.Count > 0))
-            {
-                objTemp = (JObject)arrTemp[0];
-
-                responseHeader = (JObject)objTemp["encabezado"]!;
-
-                if (responseHeader != null)
-                {
-                    if (responseHeader["resultado"]!.ToString() == "false")
-                        Logger.error("Contapyme response: " + responseHeader["mensaje"]);
-                    else
-                        Logger.info("Contapyme response: the request was processed successfully");
-                }
-
-                if (objTemp.TryGetValue("respuesta", out tokTemp) && (tokTemp != null))
-                {
-                    objTemp = (JObject)tokTemp;
-                    if (objTemp.TryGetValue("datos", out tokTemp) && (tokTemp != null))
-                    {
-                        return (JArray)tokTemp;
-                    }
-                }
-            }
+            Logger.error("Contapyme response: " + responseHeader["mensaje"]);
+            return (responseHeader, responseAnswer);
         }
-
-        return new JArray();
+        
+        Logger.info("Contapyme response: the request was processed successfully");
+            
+        responseAnswer = (JObject)response["result"]![0]!["respuesta"]!;
+        return (responseHeader, responseAnswer);
     }
 }

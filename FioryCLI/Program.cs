@@ -11,6 +11,8 @@ class Fiory
 {
     static void Main(string[] args)
     {
+        Logger.createLogFile().GetAwaiter().GetResult();
+        
         var apiAgente = new Contapyme();
         apiAgente.setContapyme();
         var masterData = new Masterdata(apiAgente.getProducts());
