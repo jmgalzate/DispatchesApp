@@ -2,12 +2,11 @@
 
 namespace FioryLibrary.Connections;
 
-public class MasterData
+public static class MasterData
 {
-    private readonly List<Product> _listProductDetails = new();
-    public MasterData(JArray products) => setProducts(products);
-    
-    private void setProducts(JArray products)
+    private static readonly List<Product> ListProductDetails = new();
+
+    public static void setProducts(JArray products)
     {
         foreach (var product in products)
         {
@@ -17,14 +16,14 @@ public class MasterData
                 name = product["nrecurso"]!.ToString(),
                 ean = product["clase2"]!.ToString()
             };
-            _listProductDetails.Add(newProduct);
+            ListProductDetails.Add(newProduct);
         }
     }
 
-    public string vLookup(string ean)
+    public static string vLookup(string ean)
     {
         string sku = "";
-        _listProductDetails.ForEach(delegate(Product productDetails)
+        ListProductDetails.ForEach(delegate(Product productDetails)
         {
             if (productDetails.ean == ean)
                 sku = productDetails.sku!;
@@ -32,11 +31,11 @@ public class MasterData
 
         return sku;
     }
+}
 
-    private class Product
-    {
-        public string? sku { init; get; }
-        public string? name { init; get; }
-        public string? ean { init; get; }
-    }
+public class Product
+{
+    public string? sku { init; get; }
+    public string? name { init; get; }
+    public string? ean { init; get; }
 }

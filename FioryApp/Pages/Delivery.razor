@@ -101,7 +101,6 @@
 @code{
 
     private readonly Contapyme _api = new();
-    private MasterData _productsInfo;
     private readonly Order _order = new();
     private readonly Scanned _scan = new();
 
@@ -117,7 +116,6 @@
         Logger.createLogFile().GetAwaiter().GetResult();
         Logger.info("Scan Operation: the operation for scanning is started for order " + _orderNumber);
         _api.setContapyme();
-        _productsInfo = new MasterData(_api.getProducts());
         _api.OrderNumber = _orderNumber;
 
         _order.setOrderNumber(_api.OrderNumber);
@@ -131,7 +129,7 @@
     {
         if (!string.IsNullOrWhiteSpace(_item))
         {
-            string sku = _productsInfo.vLookup(_item);
+            string sku = MasterData.vLookup(_item);
             if (string.IsNullOrEmpty(sku))
             {
                 _items.Add(_item + ": no existe.");

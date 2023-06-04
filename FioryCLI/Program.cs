@@ -12,7 +12,7 @@ class Fiory
         
         var apiAgente = new Contapyme();
         apiAgente.setContapyme();
-        var masterData = new MasterData(apiAgente.getProducts());
+        MasterData.setProducts(apiAgente.getProducts());
 
         bool workNewOrder;
         bool scanOperationControl;
@@ -55,7 +55,7 @@ class Fiory
                     }
                     else
                     {
-                        var sku = masterData.vLookup(stringItem);
+                        var sku = MasterData.vLookup(stringItem);
 
                         if (string.IsNullOrEmpty(sku))
                         {

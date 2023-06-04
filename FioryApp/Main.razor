@@ -1,4 +1,5 @@
-﻿<Router AppAssembly="@typeof(Main).Assembly">
+﻿@using FioryLibrary.Connections
+<Router AppAssembly="@typeof(Main).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
@@ -10,3 +11,23 @@
     </NotFound>
 </Router>
 
+@code {
+
+    public int SetProductsStatus = setProductsMainRazor();
+    
+    public static int setProductsMainRazor()
+    {
+        try
+        {
+            Contapyme api = new Contapyme();
+            api.setContapyme();
+            MasterData.setProducts(api.getProducts());
+            return 1;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+}
