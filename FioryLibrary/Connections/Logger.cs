@@ -15,18 +15,16 @@ public static class Logger
 
 		if (!File.Exists(file))
 		{
-			using (FileStream stream = File.Create(file))
-			{
-				// No need to await or return anything, just dispose the stream asynchronously
-				return stream.DisposeAsync().AsTask();
-			}
+			using FileStream stream = File.Create(file);
+			// No need to await or return anything, just dispose the stream asynchronously
+			return stream.DisposeAsync().AsTask();
 		}
 
 		// Return a completed task if the file already exists
 		return Task.CompletedTask;
 	}
 
-	public static string logFilePath() {
+	private static string logFilePath() {
         string folderPath = ConfigFiles.getConfigFilesPath("Logs");
         string fileName = "log_" + DateTime.Now.Year + DateTime.Now.Month + DateTime.Now.Day + ".txt";
         string file = folderPath + Path.DirectorySeparatorChar + fileName;

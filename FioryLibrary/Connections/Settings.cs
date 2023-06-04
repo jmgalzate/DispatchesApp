@@ -1,41 +1,36 @@
-﻿using System;
-using Newtonsoft.Json;
-using System.Security.Principal;
-using Newtonsoft.Json.Linq;
-using System.Reflection;
+﻿using Newtonsoft.Json;
 
 namespace FioryLibrary.Connections;
 
 public class Settings
 {
-    private string? _path;
-    private string? _appsettings;
-    private ConnectionStrings? _connection;
+    private readonly string? _path;
+    private readonly string? _appsettings;
+    private readonly ConnectionStrings? _connection;
 
     public Settings()
     {
         try
         {
-            this._path = ConfigFiles.getConfigFilesPath("appsettings.json");
-            this._appsettings = File.ReadAllText(this._path);
-            this._connection = JsonConvert.DeserializeObject<ConnectionStrings>(this._appsettings);
+            _path = ConfigFiles.getConfigFilesPath("appsettings.json");
+            _appsettings = File.ReadAllText(_path);
+            _connection = JsonConvert.DeserializeObject<ConnectionStrings>(_appsettings);
             Logger.info("AppSettings: file loaded");
         } catch (Exception ex)
         {
             Logger.error("AppSettings: " + ex.Message);
         }
-        
     }
 
-    public ConnectionStrings getConnectionStrings() => this._connection!;
+    public ConnectionStrings getConnectionStrings() => _connection!;
 }
 
 public class ConnectionStrings
 {
-    public string? Server { set; get; }
-    public string? Username { set; get; }
-    public string? Password { set; get; }
-    public string? MachineID { set; get; }
+    public string? server { set; get; }
+    public string? username { set; get; }
+    public string? password { set; get; }
+    public string? machineId { set; get; }
     public string? iapp { set; get; }
     public string? itdoper { set; get; }
 }

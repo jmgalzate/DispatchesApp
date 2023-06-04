@@ -1,11 +1,8 @@
-﻿using System;
-using System.Reflection;
-
-using FioryLibrary.Connections;
+﻿using FioryLibrary.Connections;
 using FioryLibrary.Operations;
 using FioryLibrary.Sales;
 
-namespace Fiory;
+namespace FioryCLI;
 
 class Fiory
 {
@@ -15,7 +12,7 @@ class Fiory
         
         var apiAgente = new Contapyme();
         apiAgente.setContapyme();
-        var masterData = new Masterdata(apiAgente.getProducts());
+        var masterData = new MasterData(apiAgente.getProducts());
 
         bool workNewOrder;
         bool scanOperationControl;
@@ -58,7 +55,7 @@ class Fiory
                     }
                     else
                     {
-                        var sku = masterData.vlookup(stringItem);
+                        var sku = masterData.vLookup(stringItem);
 
                         if (string.IsNullOrEmpty(sku))
                         {
