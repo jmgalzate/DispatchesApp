@@ -1,4 +1,6 @@
 ###> LOCAL FOLDER
+.DS_Store
+FioryApp/Resources/.DS_Store
 
 .DS_Store/
 .idea/
