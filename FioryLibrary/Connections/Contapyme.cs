@@ -89,6 +89,25 @@ public class Contapyme
         return objTemp;
     }
 
+    public JObject taxes(JObject newOrder)
+    {
+        Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
+        Logger.info("Connection: sending request to " + endpoint);
+        Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
+        {
+            {"accion", "CALCULAR IMPUESTOS" },
+            {"operaciones", _getOperations() },
+            {"oprdata", newOrder }
+        };
+
+        string objSend = JsonConvert.SerializeObject(objParams, Formatting.None);
+        JObject response = _requestPost(endpoint, _setParameters(objSend));
+        (JObject header, JObject body) = _processRequest(response);
+        JObject objTemp = (JObject)body["datos"]!;
+
+        return objTemp;
+    }
+
     public JObject save(JObject newOrder)
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");

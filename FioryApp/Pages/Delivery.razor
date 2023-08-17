@@ -119,6 +119,7 @@
         _api.OrderNumber = _orderNumber;
 
         _order.setOrderNumber(_api.OrderNumber);
+        _api.unprocess();
         _order.setOrderDetails(_api.load());
 
         _scan.setListScannedProducts(_order.products);
@@ -169,6 +170,7 @@
     {
         Logger.info("Scan Operation: order " + _orderNumber + " closed without save changes in Contapyme.");
         setDispatch();
+        _api.process();
         _api.closeAgent();
         goToDispatch();
     }
@@ -178,6 +180,7 @@
         Logger.info("Scan Operation: order " + _orderNumber + " saved in Contapyme");
         setDispatch();
         _api.save(_orderDispatched.orderJson!);
+        _api.taxes(_orderDispatched.orderJson!);
         _api.process();
         _api.closeAgent();
         goToDispatch();
