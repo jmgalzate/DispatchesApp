@@ -14,7 +14,7 @@
 		<!-- Display name -->
 		<ApplicationTitle>FioryApp</ApplicationTitle>
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.fioryapp</ApplicationId>
+		<ApplicationId>com.jumiguelga.fioryapp</ApplicationId>
 		<ApplicationIdGuid>7AA6B43E-A85E-4F5E-9581-9F3763C03709</ApplicationIdGuid>
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -26,6 +26,7 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 		<DockerComposeProjectPath>../docker-compose.dcproj</DockerComposeProjectPath>
+		<ReleaseVersion>2.1.5.0</ReleaseVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
 		<CreatePackage>false</CreatePackage>

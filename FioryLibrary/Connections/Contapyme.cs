@@ -194,7 +194,7 @@ public class Contapyme
             var payload = new StringContent(newPostJson, System.Text.Encoding.UTF8, "application/json");
 
             Task<HttpResponseMessage> httpResponse = webclient.PostAsync(endpoint, payload);
-            Logger.info("Connection: request payload = " + newPostJson);
+            //Logger.info("Connection: request payload = " + newPostJson);
             HttpResponseMessage httpResponseMessage = httpResponse.Result;
 
             Logger.info("Connection: response received from " + endpoint + " with status code: " + httpResponseMessage.StatusCode);
