@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using System.Security.Cryptography;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace FioryLibrary.Connections;
 
@@ -16,13 +18,31 @@ public class Settings
             _appsettings = File.ReadAllText(_path);
             _connection = JsonConvert.DeserializeObject<ConnectionStrings>(_appsettings);
             Logger.info("AppSettings: file loaded");
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             Logger.error("AppSettings: " + ex.Message);
         }
     }
 
     public ConnectionStrings getConnectionStrings() => _connection!;
+
+    public static string CalculateMD5Hash(string input)
+    {
+        using (MD5 md5 = MD5.Create())
+        {
+            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+            byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in hashBytes)
+            {
+                sb.Append(b.ToString("x2"));
+            }
+
+            return sb.ToString();
+        }
+    }
 }
 
 public class ConnectionStrings
