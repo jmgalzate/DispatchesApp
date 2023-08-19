@@ -1,20 +1,24 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# Introduction:
+Fiory App is an application created for improve a process that Fiory warehouse executed before manually by Excel file.
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+# External Connection:
+The application has a "Library" for getting connections with the Contapyme API
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+# Relevant information:
+- There is a CLI project because the first version to this application was a Command application.
+- The certificate is a Self Certificate
+- It was build with MAUI and Blazor for multiplatform application.
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+# Additional folders:
+- You need to add the appsettings.json file in the C:/programdata/FioryApp/Masterfiles/appsettings.json
+- The application will create another folder for exports on C:/Users/{username}/documents/FioryApp/Exports/
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+# appsettings.json
+{
+    "Server": "URL",
+    "Username": "user@mail.com",
+    "Password": "password encrypted",
+    "MachineID": "Whatever",
+    "iapp": "ID provided by Contapyme",
+    "itdoper": "Order Type"
+}
