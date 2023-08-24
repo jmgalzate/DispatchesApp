@@ -1,5 +1,4 @@
-﻿@using FioryLibrary.Connections
-<Router AppAssembly="@typeof(Main).Assembly">
+﻿<Router AppAssembly="@typeof(Main).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
@@ -11,23 +10,33 @@
     </NotFound>
 </Router>
 
-@code {
 
-    public int SetProductsStatus = setProductsMainRazor();
-    
-    public static int setProductsMainRazor()
+@using FioryLibrary.Connections
+@using Newtonsoft.Json.Linq;
+
+
+@code {
+    private int SetProductsStatus;
+    private Contapyme Api = new Contapyme();
+
+    protected override async Task OnInitializedAsync()
+    {
+        SetProductsStatus = await SetProductsMainRazorAsync();
+    }
+
+    private async Task<int> SetProductsMainRazorAsync()
     {
         try
         {
-            Contapyme api = new Contapyme();
-            api.setContapyme();
-            MasterData.setProducts(api.getProducts());
+            await Api.SetContapymeAsync();
+            JArray productsArray = await Api.GetProductsAsync();
+            await MasterData.SetProductsAsync(productsArray);
             return 1;
         }
-        catch
+        catch (Exception e)
         {
+            var message = e.Message;
             return 0;
         }
     }
-
 }

@@ -100,7 +100,7 @@
 
 @code{
 
-    private readonly Contapyme _api = new();
+    private Contapyme Api = new Contapyme();
     private readonly Order _order = new();
     private readonly Scanned _scan = new();
 
@@ -111,16 +111,15 @@
 
     private bool _showPage;
 
-    private void load()
+    private async void load()
     {
         Logger.createLogFile().GetAwaiter().GetResult();
         Logger.info("Scan Operation: the operation for scanning is started for order " + _orderNumber);
-        _api.setContapyme();
-        _api.OrderNumber = _orderNumber;
+        await Api.SetContapymeAsync();
 
-        _order.setOrderNumber(_api.OrderNumber);
-        _api.unprocess();
-        _order.setOrderDetails(_api.load());
+        _order.setOrderNumber(_orderNumber);
+        await Api.Action("UNPROCESS", _orderNumber.ToString());
+        _order.setOrderDetails(await Api.Action("LOAD", _orderNumber.ToString()));
 
         _scan.setListScannedProducts(_order.products);
         _showPage = true;
@@ -166,23 +165,23 @@
         Sale.exportReport(_orderDispatched.orderNumber, _orderDispatched.orderJson!, _order.products, _orderDispatched.products);
     }
 
-    private void close()
+    private async void close()
     {
         Logger.info("Scan Operation: order " + _orderNumber + " closed without save changes in Contapyme.");
         setDispatch();
-        _api.process();
-        _api.closeAgent();
+        await Api.Action("PROCESS", _orderNumber.ToString());
+        await Api.CloseAgentAsync();
         goToDispatch();
     }
 
-    private void save()
+    private async void save()
     {
         Logger.info("Scan Operation: order " + _orderNumber + " saved in Contapyme");
         setDispatch();
-        _api.save(_orderDispatched.orderJson!);
-        _api.taxes(_orderDispatched.orderJson!);
-        _api.process();
-        _api.closeAgent();
+        await Api.Action("SAVE", _orderNumber.ToString(), _orderDispatched.orderJson);
+        await Api.Action("CALCULAR IMPUESTOS", _orderNumber.ToString(), _orderDispatched.orderJson);
+        await Api.Action("PROCESS", _orderNumber.ToString());
+        await Api.CloseAgentAsync();
         goToDispatch();
     }
 
