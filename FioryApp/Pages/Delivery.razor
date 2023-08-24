@@ -14,12 +14,12 @@
 </audio>
 
 <input type="number" @bind="_orderNumber" @bind:event="oninput"/>
-<button onclick="@load" type="button" class="btn btn-outline-primary deliveryButton">Cargar</button>
+<button onclick="@(async () => await LoadAsync())" type="button" class="btn btn-outline-primary deliveryButton">Cargar</button>
 
 @if (_showPage == true)
 {
-    <button onclick="@close" type="button" class="btn btn-outline-success deliveryButton">Cerrar</button>
-    <button onclick="@save" type="button" class="btn btn-outline-warning deliveryButton">Guardar</button>
+    <button onclick="@(async () => await CloseAsync())" type="button" class="btn btn-outline-success deliveryButton">Cerrar</button>
+    <button onclick="@(async () => await SaveAsync())" type="button" class="btn btn-outline-warning deliveryButton">Guardar</button>
     <div class="container text-center" style="margin-top: 20px;">
         <div class="row">
             <div class="col" id="dispatchContainer" style="margin-bottom: 10px;">
@@ -111,7 +111,7 @@
 
     private bool _showPage;
 
-    private async void load()
+    private async Task LoadAsync()
     {
         Logger.createLogFile().GetAwaiter().GetResult();
         Logger.info("Scan Operation: the operation for scanning is started for order " + _orderNumber);
@@ -165,7 +165,7 @@
         Sale.exportReport(_orderDispatched.orderNumber, _orderDispatched.orderJson!, _order.products, _orderDispatched.products);
     }
 
-    private async void close()
+    private async Task CloseAsync()
     {
         Logger.info("Scan Operation: order " + _orderNumber + " closed without save changes in Contapyme.");
         setDispatch();
@@ -174,7 +174,7 @@
         goToDispatch();
     }
 
-    private async void save()
+    private async Task SaveAsync()
     {
         Logger.info("Scan Operation: order " + _orderNumber + " saved in Contapyme");
         setDispatch();
