@@ -1,10 +1,4 @@
-﻿using System;
-using FioryLibrary.Sales;
-using System.Text;
-using System.IO;
-using Microsoft.VisualBasic;
-
-namespace FioryLibrary.Connections;
+﻿namespace FioryLibrary.Connections;
 
 public static class Logger
 {

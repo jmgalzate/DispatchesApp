@@ -25,7 +25,7 @@ public class Settings
         }
     }
 
-    public ConnectionStrings getConnectionStrings() => _connection!;
+    public ConnectionStrings GetConnectionStrings() => _connection!;
 
     public static string CalculateMD5Hash(string input)
     {

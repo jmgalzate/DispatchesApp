@@ -6,19 +6,20 @@ public static class MasterData
 {
     private static readonly List<Product> ListProductDetails = new();
 
-    public static void setProducts(JArray products)
+    public static async Task SetProductsAsync(JArray products)
     {
-        foreach (var product in products)
+        foreach (JObject product in products)
         {
-            var newProduct = new Product()
+            var newProduct = new Product
             {
-                sku = product["irecurso"]!.ToString(),
-                name = product["nrecurso"]!.ToString(),
-                ean = product["clase2"]!.ToString()
+                sku = product["irecurso"].ToString(),
+                name = product["nrecurso"].ToString(),
+                ean = product["clase2"].ToString()
             };
             ListProductDetails.Add(newProduct);
         }
     }
+
 
     public static string vLookup(string ean)
     {
