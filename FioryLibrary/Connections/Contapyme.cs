@@ -52,6 +52,13 @@ public class Contapyme
         _arrParams[1] = await GetAuthAsync(); // Keyagent
     }
 
+    private JObject[] _getOperations(string orderNumber)
+    {
+        string operations = "{\"inumoper\": \"" + (orderNumber) + "\", \"itdoper\": \"ORD1\"}";
+        _operationsArray[0] = JObject.Parse(operations);
+        return _operationsArray;
+    }
+
     private async Task<string> GetAuthAsync()
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TBasicoGeneral/\"GetAuth\"/");
@@ -96,7 +103,7 @@ public class Contapyme
             objParams = new Dictionary<string, dynamic>
             {
                 {"accion", "CALCULAR IMPUESTOS" },
-                {"operaciones", "{\"inumoper\": \"" + (orderNumber) + "\", \"itdoper\": \"ORD1\"}"},
+                {"operaciones", _getOperations(orderNumber)},
                 {"oprdata", orderBody }
             };
 
@@ -106,7 +113,7 @@ public class Contapyme
             objParams = new Dictionary<string, dynamic>
             {
                 {"accion", action },
-                {"operaciones", "{\"inumoper\": \"" + (orderNumber) + "\", \"itdoper\": \"ORD1\"}" },
+                {"operaciones", _getOperations(orderNumber) }
             };
         }
 
@@ -117,7 +124,6 @@ public class Contapyme
 
         return objTemp;
     }
-
 
     public async Task<JArray> GetProductsAsync()
     {
