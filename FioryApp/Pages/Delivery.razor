@@ -13,8 +13,19 @@
     Your browser does not support the audio element.
 </audio>
 
-<input type="number" @bind="_orderNumber" @bind:event="oninput"/>
-<button onclick="@(async () => await LoadAsync())" type="button" class="btn btn-outline-primary deliveryButton">Cargar</button>
+<input type="number" @bind="_orderNumber" @bind:event="oninput" />
+<button disabled="@IsLoading" @onclick="@(async () => await LoadAsync())" type="button" class="btn btn-outline-primary deliveryButton">
+    @if (IsLoading)
+    {
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span>Loading...</span>
+    }
+    else
+    {
+        <span>Cargar</span>
+    }
+</button>
+
 
 @if (_showPage == true)
 {
@@ -32,24 +43,24 @@
                     <div style="padding:1rem;">
                         <table class="table table-bordered">
                             <thead>
-                            <tr>
-                                <th scope="col">Código</th>
-                                <th scope="col">Requeridos</th>
-                                <th scope="col">Despacho</th>
-                            </tr>
+                                <tr>
+                                    <th scope="col">Código</th>
+                                    <th scope="col">Requeridos</th>
+                                    <th scope="col">Despacho</th>
+                                </tr>
                             </thead>
                             <tbody>
-                            @if (_scan.scannedProducts.Count > 0)
-                            {
-                                @foreach (ScannedProduct product in _scan.scannedProducts)
+                                @if (_scan.scannedProducts.Count > 0)
                                 {
-                                    <tr>
-                                        <td>@product.sku</td>
-                                        <td>@product.requested</td>
-                                        <td>@product.quantity</td>
-                                    </tr>
+                                    @foreach (ScannedProduct product in _scan.scannedProducts)
+                                    {
+                                        <tr>
+                                            <td>@product.sku</td>
+                                            <td>@product.requested</td>
+                                            <td>@product.quantity</td>
+                                        </tr>
+                                    }
                                 }
-                            }
                             </tbody>
                         </table>
                     </div>
@@ -111,8 +122,11 @@
 
     private bool _showPage;
 
+    private bool IsLoading { get; set; } = false;
+
     private async Task LoadAsync()
     {
+        IsLoading = true;
         Logger.createLogFile().GetAwaiter().GetResult();
         Logger.info("Scan Operation: the operation for scanning is started for order " + _orderNumber);
         await Api.SetContapymeAsync();
@@ -122,6 +136,11 @@
         _order.setOrderDetails(await Api.Action("LOAD", _orderNumber.ToString()));
 
         _scan.setListScannedProducts(_order.products);
+
+        await Task.Delay(2000); // Example async operation
+
+        IsLoading = false;
+
         _showPage = true;
     }
 
