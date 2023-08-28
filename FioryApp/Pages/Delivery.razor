@@ -13,24 +13,45 @@
     Your browser does not support the audio element.
 </audio>
 
-<input type="number" @bind="_orderNumber" @bind:event="oninput" />
-<button disabled="@IsLoading" @onclick="@(async () => await LoadAsync())" type="button" class="btn btn-outline-primary deliveryButton">
-    @if (IsLoading)
-    {
-        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        <span>Loading...</span>
-    }
-    else
-    {
-        <span>Cargar</span>
-    }
-</button>
-
-
-@if (_showPage == true)
+@if (_showPage == false)
 {
-    <button onclick="@(async () => await CloseAsync())" type="button" class="btn btn-outline-success deliveryButton">Cerrar</button>
-    <button onclick="@(async () => await SaveAsync())" type="button" class="btn btn-outline-warning deliveryButton">Guardar</button>
+    <input type="number" @bind="_orderNumber" @bind:event="oninput" />
+    <button disabled="@IsLoading" @onclick="@(async () => await LoadAsync())" type="button" class="btn btn-outline-primary deliveryButton">
+        @if (IsLoading)
+        {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span>Loading...</span>
+        }
+        else
+        {
+            <span>Cargar</span>
+        }
+    </button>
+}
+else
+{
+    <button disabled="@IsClosing" @onclick="@(async () => await CloseAsync())" type="button" class="btn btn-outline-success deliveryButton">
+        @if (IsClosing)
+        {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span>Loading...</span>
+        }
+        else
+        {
+            <span>Cerrar sin Guardar</span>
+        }
+    </button>
+    <button disabled="@IsSaving" @onclick="@(async () => await SaveAsync())" type="button" class="btn btn-outline-warning deliveryButton">
+        @if (IsSaving)
+        {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span>Loading...</span>
+        }
+        else
+        {
+            <span>Guardar y Cerrar</span>
+        }
+    </button>
     <div class="container text-center" style="margin-top: 20px;">
         <div class="row">
             <div class="col" id="dispatchContainer" style="margin-bottom: 10px;">
@@ -123,6 +144,9 @@
     private bool _showPage;
 
     private bool IsLoading { get; set; } = false;
+    private bool IsClosing { get; set; } = false;
+    private bool IsSaving { get; set; } = false;
+
 
     private async Task LoadAsync()
     {
@@ -186,21 +210,25 @@
 
     private async Task CloseAsync()
     {
+        IsClosing = true;
         Logger.info("Scan Operation: order " + _orderNumber + " closed without save changes in Contapyme.");
         setDispatch();
         await Api.Action("PROCESS", _orderNumber.ToString());
         await Api.CloseAgentAsync();
+        IsClosing = false;
         goToDispatch();
     }
 
     private async Task SaveAsync()
     {
+        IsSaving = true;
         Logger.info("Scan Operation: order " + _orderNumber + " saved in Contapyme");
         setDispatch();
         await Api.Action("SAVE", _orderNumber.ToString(), _orderDispatched.orderJson);
         await Api.Action("CALCULAR IMPUESTOS", _orderNumber.ToString(), _orderDispatched.orderJson);
         await Api.Action("PROCESS", _orderNumber.ToString());
         await Api.CloseAgentAsync();
+        IsSaving = false;
         goToDispatch();
     }
 
