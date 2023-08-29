@@ -9,34 +9,3 @@
         </LayoutView>
     </NotFound>
 </Router>
-
-
-@using FioryLibrary.Connections
-@using Newtonsoft.Json.Linq;
-
-
-@code {
-    private int SetProductsStatus;
-    private Contapyme Api = new Contapyme();
-
-    protected override async Task OnInitializedAsync()
-    {
-        SetProductsStatus = await SetProductsMainRazorAsync();
-    }
-
-    private async Task<int> SetProductsMainRazorAsync()
-    {
-        try
-        {
-            await Api.SetContapymeAsync();
-            JArray productsArray = await Api.GetProductsAsync();
-            await MasterData.SetProductsAsync(productsArray);
-            return 1;
-        }
-        catch (Exception e)
-        {
-            var message = e.Message;
-            return 0;
-        }
-    }
-}

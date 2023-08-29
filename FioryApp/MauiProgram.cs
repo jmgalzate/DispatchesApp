@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using FioryApp.src.Service;
 
 namespace FioryApp;
 
@@ -13,8 +14,10 @@ public static class MauiProgram
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 			});
+		
+        builder.Services.AddSingleton<SessionService>(); //Manage Session Service
 
-		builder.Services.AddMauiBlazorWebView();
+        builder.Services.AddMauiBlazorWebView();
 
 #if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
