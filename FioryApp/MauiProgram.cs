@@ -16,6 +16,7 @@ public static class MauiProgram
 			});
 		
         builder.Services.AddSingleton<SessionService>(); //Manage Session Service
+        builder.Services.AddSingleton<ContapymeService>(); //Manage Session Service
 
         builder.Services.AddMauiBlazorWebView();
 
