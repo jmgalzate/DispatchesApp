@@ -1,4 +1,7 @@
 ﻿@inherits LayoutComponentBase
+@using FioryApp.src.Service
+
+@inject SessionService SessionService
 
 <div class="page">
     <div class="sidebar">
@@ -6,14 +9,45 @@
     </div>
 
     <main>
-        <div class="top-row px-4">
-            <p> Hecho con el <i class="oi oi-heart"></i></p>
-            <!--<a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>-->
-        </div>
+        @if (string.IsNullOrEmpty(SessionService.KeyAgent))
+        {
+            <div class="top-row px-4">
+                <p>Debes de Iniciar el Agente</p>
+            </div>
+        }
+        else
+        {
+            <div class="top-row px-4" style="background-color: #69E5C8;">
+                <p>Conexión establecida con Contapyme</p>
+            </div>
+        }
 
         <article class="content px-4">
             @Body
         </article>
+
     </main>
 </div>
+
+@code {
+    // Subscribe to SessionStateChanged event
+    protected override void OnInitialized()
+    {
+        SessionService.SessionStateChanged += HandleSessionStateChanged;
+        base.OnInitialized();
+    }
+
+    // Handle session state change
+    private void HandleSessionStateChanged(object sender, EventArgs e)
+    {
+        // Update UI or perform other actions as needed
+        StateHasChanged();
+    }
+
+    // Unsubscribe when component is disposed
+    public void Dispose()
+    {
+        SessionService.SessionStateChanged -= HandleSessionStateChanged;
+    }
+}
 
