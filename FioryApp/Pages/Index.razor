@@ -1,30 +1,128 @@
 ﻿@page "/"
-@inject NavigationManager navManager
-@using FioryLibrary.Connections;
 
-<div class="row">
-    <div class="col-sm-9 p-3">
-        <h1>Sistema de Despacho Fiory</h1>
-    </div>
-    <div class="col">
-        <button onclick="@goToDispatch" type="button" class="btn btn-outline-secondary"><i class="oi oi-plus"></i>Agregar Despacho</button>
+@using FioryLibrary.Connections;
+@using FioryApp.src.Service;
+
+@inject NavigationManager navManager
+@inject SessionService SessionService
+@inject ContapymeService Api
+
+
+<div class="p-5 mb-4 bg-light rounded-3">
+    <div class="container-fluid py-5">
+        <h1 class="display-5 fw-bold">Sistema de Despacho Fiory</h1>
+
+        <!--Start Session Section-->
+        @if (string.IsNullOrEmpty(SessionService.KeyAgent))
+        {
+
+            <button disabled="@IsStartingSession" @onclick="@(async () => await StartSessionAsync())" type="button" class="btn btn-outline-primary deliveryButton">
+                @if (IsStartingSession)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span>Loading...</span>
+                }
+                else
+                {
+                    <span>Iniciar Agente</span>
+                }
+            </button>
+        }
+        else
+        {
+            <button disabled="@IsClosingSession" @onclick="@(async () => await CloseSessionAsync())" type="button" class="btn btn-outline-primary deliveryButton">
+                @if (IsClosingSession)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span>Loading...</span>
+                }
+                else
+                {
+                    <span>Cerrar Agente</span>
+                }
+            </button>
+            <div class="row">
+                <p>Session Value: @GetSessionValue()</p>
+            </div>
+        }
+        <!-- End Session Section-->
+
     </div>
 </div>
 
-<p>Estas son las órdenes que tienes en la carpeta: @folderRoot</p>
+<div class="row align-items-md-stretch" style="padding-left: 2%; padding-right: 2%;">
+    <div class="col-md-5">
+        <div class="h-100 p-5 text-white bg-dark rounded-3">
+            <!-- Start Products -->
+            <h2>Recursos cargados</h2>
+            <button class="btn btn-primary">
+                 Cargar Productos
+            </button>
+            <br><br>
+            <h4>Estado de la carga:</h4>
+            <!--If products were uploaded -->
+            <p>Se han cargado <!--Cant of products --> productos.</p>
+            <!--Else-->
+            <p>No se han cargado productos.</p>
+            <!--End if-->
+            <!-- End Products -->
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="h-100 p-5 bg-light border rounded-3">
+            <!-- Start Files-->
+            <h2>Despachos Efectuados</h2>
+            <button class="btn btn-primary"
+                    @onclick="goToDispatch">
+                 Agregar Despacho
+            </button>
+            <br><br>
+            <p>Estas son las órdenes que tienes en la carpeta: @folderRoot</p>
 
-@if (filesInRoot.Count > 0)
-{
-    <ul>
-        @foreach (string file in filesInRoot)
-        {
-            <li>@file</li>
-        }
-    </ul>
-}
+            @if (filesInRoot.Count > 0)
+            {
+                <ul>
+                    @foreach (string file in filesInRoot)
+                    {
+                        <li>@file</li>
+                    }
+                </ul>
+            }
+            <!-- End files-->
+        </div>
+    </div>
+</div>
 
 @code {
     private void goToDispatch() => navManager.NavigateTo("/Delivery");
     private static string folderRoot => ConfigFiles.getReportFilesPath();
     private static List<string> filesInRoot => ConfigFiles.getFilesInFolder(folderRoot);
+
+    private bool IsStartingSession { get; set; } = false;
+    private bool IsClosingSession { get; set; } = false;
+
+    private async Task StartSessionAsync()
+    {
+        IsStartingSession = true;
+
+        await Api.SetContapymeAsync();
+        SessionService.UpdateSessionKeyAgent(Api.agente);
+
+        IsStartingSession = false;
+    }
+
+    private string GetSessionValue()
+    {
+        return SessionService.KeyAgent;
+    }
+
+    private async Task CloseSessionAsync()
+    {
+        IsClosingSession = true;
+
+        await Api.CloseAgentAsync();
+        SessionService.UpdateSessionKeyAgent(null);
+
+        IsClosingSession = false;
+    }
 }
