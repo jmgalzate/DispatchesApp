@@ -1,7 +1,10 @@
 ﻿@page "/Delivery"
 
+@using FioryApp.src.Service
+
 @inject NavigationManager navManager
 @inject IJSRuntime jsRuntime
+@inject ContapymeService Api
 
 @using FioryLibrary.Connections;
 @using FioryLibrary.Operations;
@@ -132,7 +135,6 @@ else
 
 @code{
 
-    private Contapyme Api = new Contapyme();
     private readonly Order _order = new();
     private readonly Scanned _scan = new();
 
@@ -153,7 +155,6 @@ else
         IsLoading = true;
         Logger.createLogFile().GetAwaiter().GetResult();
         Logger.info("Scan Operation: the operation for scanning is started for order " + _orderNumber);
-        await Api.SetContapymeAsync();
 
         _order.setOrderNumber(_orderNumber);
         await Api.Action("UNPROCESS", _orderNumber.ToString());
@@ -214,7 +215,6 @@ else
         Logger.info("Scan Operation: order " + _orderNumber + " closed without save changes in Contapyme.");
         setDispatch();
         await Api.Action("PROCESS", _orderNumber.ToString());
-        await Api.CloseAgentAsync();
         IsClosing = false;
         goToDispatch();
     }
@@ -227,7 +227,6 @@ else
         await Api.Action("SAVE", _orderNumber.ToString(), _orderDispatched.orderJson);
         await Api.Action("CALCULAR IMPUESTOS", _orderNumber.ToString(), _orderDispatched.orderJson);
         await Api.Action("PROCESS", _orderNumber.ToString());
-        await Api.CloseAgentAsync();
         IsSaving = false;
         goToDispatch();
     }
