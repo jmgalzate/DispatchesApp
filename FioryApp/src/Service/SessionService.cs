@@ -1,11 +1,8 @@
-﻿using FioryLibrary.Connections;
-using Newtonsoft.Json.Linq;
-
-namespace FioryApp.src.Service
+﻿namespace FioryApp.src.Service
 {
 	public class SessionService
 	{
-        public string KeyAgent { get; set; } = ""; // Initialize as empty string
+        public string KeyAgent { get; set; } = "";
 
         public event EventHandler SessionStateChanged;
 
