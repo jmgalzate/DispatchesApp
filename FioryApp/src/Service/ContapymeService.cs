@@ -78,7 +78,7 @@ public class ContapymeService
         (JObject header, JObject body) = ProcessResponse(response);
         JObject objTemp = (JObject)body["datos"]!;
 
-        string keyAgente = objTemp.TryGetValue("keyagente", out JToken? tokTemp)
+        string keyAgente = objTemp.TryGetValue("keyagente", out JToken tokTemp)
             ? (string)tokTemp!
             : string.Empty;
 
