@@ -9,7 +9,6 @@ public class ContapymeService
     private readonly Random _random = new();
     private readonly JObject[] _operationsArray = new JObject[1];
     private ConnectionStrings _connectionInformation = new();
-
     private readonly string[] _arrParams = new string[4];
     public string agente { set; get; }
 
