@@ -5,6 +5,7 @@ FioryApp/Resources/.DS_Store
 .DS_Store/
 .idea/
 .vs/
+.vscode/
 FioryApp/.DS_Store
 FioryCLI/.DS_Store
 FioryLibrary/.DS_Store
@@ -13,14 +14,18 @@ FioryLibrary/.DS_Store
 
 ###> PROJECT FILES
 obj/
+bin/
 
 FioryApp/bin/
 FioryApp/obj/
+FioryApp/.idea/
 
 FioryCli/bin/
 FioryCli/obj/
+FioryCli/.idea/
 
 FioryLibrary/bin/
 FioryLibrary/obj/
+FioryLibrary/.idea/
 
 ###<END PROJECT FILES
