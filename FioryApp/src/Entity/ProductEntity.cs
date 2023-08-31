@@ -1,14 +1,9 @@
-﻿namespace FioryApp.src.Entity
-{
-	public class ProductEntity
-	{
-		public string name { set; get; }
-		public string barcode { set; get; }
-		public string code { set; get; }
-		public int quantity { set; get; }
+﻿namespace FioryApp.src.Entity;
 
-		public ProductEntity()
-		{
-		}
-	}
+public class ProductEntity
+{
+	public string Name { set; get; }
+	public string Barcode { set; get; }
+	public string Code { set; get; }
+	public int Quantity { set; get; }
 }
