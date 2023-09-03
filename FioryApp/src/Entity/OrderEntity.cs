@@ -3,18 +3,18 @@
 public class OrderEntity
 {
     #nullable enable
-    public OrderEncabezado? encabezado { get; set; }
+    public OrderHeader? encabezado { get; set; }
     #nullable enable
-    public OrderLiquidacion? liquidacion { get; set; }
+    public OrderInvoiceSettlement? liquidacion { get; set; }
     #nullable enable
-    public OrderDatosPrincipales? datosprincipales { get; set; }
+    public OrderMainData? datosprincipales { get; set; }
     #nullable enable
     public List<OrderProduct>? listaproductos { get; set; }
     #nullable enable
     public string? qoprsok { get; set; }
 }
 
-public class OrderEncabezado
+public class OrderHeader
 {
     public required string tdetalle { get; set; }
     public required string itdoper { get; set; }
@@ -58,7 +58,7 @@ public class OrderEncabezado
     public required string mtotaloperacion { get; set; }
 }
 
-public class OrderLiquidacion
+public class OrderInvoiceSettlement
 {
     public required decimal Parcial { get; set; }
     public required decimal Descuento { get; set; }
@@ -66,7 +66,7 @@ public class OrderLiquidacion
     public required decimal Total { get; set; }
 }
 
-public class OrderDatosPrincipales
+public class OrderMainData
 {
     public required string init { get; set; }
     public required string initvendedor { get; set; }

@@ -1,14 +1,11 @@
-﻿using System;
-namespace FioryApp.src.Controller
+﻿namespace FioryApp.src.Controller;
+public class ProductController
 {
-	public class ProductController
+	public ProductController()
 	{
-		public ProductController()
-		{
-		}
-
-		//TODO: add a method that search in the Products Entity if a barcode or product code exists.
-
 	}
+
+	//TODO: add a method that search in the Products Entity if a barcode or product code exists.
+
 }
 
