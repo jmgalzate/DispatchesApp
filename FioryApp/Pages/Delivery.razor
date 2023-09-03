@@ -1,15 +1,16 @@
 ﻿@page "/Delivery"
 
 @using FioryApp.src.Service
-
-@inject NavigationManager navManager
-@inject IJSRuntime jsRuntime
-@inject ContapymeService Api
-
 @using FioryLibrary.Connections;
 @using FioryLibrary.Operations;
 @using FioryLibrary.Sales;
+@using FioryApp.src.Entity;
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
 
+@inject NavigationManager navManager
+@inject IJSRuntime jsRuntime
+@inject ContapymeService api
 
 <audio id="wrongItem">
     <source src="audio/notaded.mp3">
@@ -18,9 +19,9 @@
 
 @if (_showPage == false)
 {
-    <input type="number" @bind="_orderNumber" @bind:event="oninput" />
-    <button disabled="@IsLoading" @onclick="@(async () => await LoadAsync())" type="button" class="btn btn-outline-primary deliveryButton">
-        @if (IsLoading)
+    <input type="number" @bind="_orderNumber" @bind:event="oninput"/>
+    <button disabled="@isLoading" @onclick="@(async () => await LoadAsync())" type="button" class="btn btn-outline-primary deliveryButton">
+        @if (isLoading)
         {
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             <span>Loading...</span>
@@ -33,8 +34,8 @@
 }
 else
 {
-    <button disabled="@IsClosing" @onclick="@(async () => await CloseAsync())" type="button" class="btn btn-outline-success deliveryButton">
-        @if (IsClosing)
+    <button disabled="@isClosing" @onclick="@(async () => await CloseAsync())" type="button" class="btn btn-outline-success deliveryButton">
+        @if (isClosing)
         {
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             <span>Loading...</span>
@@ -44,8 +45,8 @@ else
             <span>Cerrar sin Guardar</span>
         }
     </button>
-    <button disabled="@IsSaving" @onclick="@(async () => await SaveAsync())" type="button" class="btn btn-outline-warning deliveryButton">
-        @if (IsSaving)
+    <button disabled="@isSaving" @onclick="@(async () => await SaveAsync())" type="button" class="btn btn-outline-warning deliveryButton">
+        @if (isSaving)
         {
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             <span>Loading...</span>
@@ -67,24 +68,24 @@ else
                     <div style="padding:1rem;">
                         <table class="table table-bordered">
                             <thead>
-                                <tr>
-                                    <th scope="col">Código</th>
-                                    <th scope="col">Requeridos</th>
-                                    <th scope="col">Despacho</th>
-                                </tr>
+                            <tr>
+                                <th scope="col">Código</th>
+                                <th scope="col">Requeridos</th>
+                                <th scope="col">Despacho</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                @if (_scan.scannedProducts.Count > 0)
+                            @if (_scan.scannedProducts.Count > 0)
+                            {
+                                @foreach (ScannedProduct product in _scan.scannedProducts)
                                 {
-                                    @foreach (ScannedProduct product in _scan.scannedProducts)
-                                    {
-                                        <tr>
-                                            <td>@product.sku</td>
-                                            <td>@product.requested</td>
-                                            <td>@product.quantity</td>
-                                        </tr>
-                                    }
+                                    <tr>
+                                        <td>@product.sku</td>
+                                        <td>@product.requested</td>
+                                        <td>@product.quantity</td>
+                                    </tr>
                                 }
+                            }
                             </tbody>
                         </table>
                     </div>
@@ -109,7 +110,7 @@ else
 
             <div class="col" id="dispatchContainer">
                 <div class="row">
-                    <form @onsubmit="enter">
+                    <form @onsubmit="Enter">
                         <div class="input-group input-group-md mb-2">
                             <span class="input-group-text" id="inputGroup-sizing-sm">EAN:</span>
                             <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-md" @bind="_item">
@@ -139,37 +140,41 @@ else
     private readonly Scanned _scan = new();
 
     private int _orderNumber;
+    private OrderEntity _orderEntity = new();
     private string _item;
     private readonly List<string> _items = new();
     private readonly Dispatch _orderDispatched = new();
 
     private bool _showPage;
 
-    private bool IsLoading { get; set; } = false;
-    private bool IsClosing { get; set; } = false;
-    private bool IsSaving { get; set; } = false;
+    private bool isLoading { get; set; } = false;
+    private bool isClosing { get; set; } = false;
+    private bool isSaving { get; set; } = false;
 
 
     private async Task LoadAsync()
     {
-        IsLoading = true;
+        isLoading = true;
         Logger.createLogFile().GetAwaiter().GetResult();
         Logger.info("Scan Operation: the operation for scanning is started for order " + _orderNumber);
 
         _order.setOrderNumber(_orderNumber);
-        await Api.Action("UNPROCESS", _orderNumber.ToString());
-        _order.setOrderDetails(await Api.Action("LOAD", _orderNumber.ToString()));
+        await api.Unprocess(_orderNumber.ToString());
+
+    //TODO: update the order details for managing the OrderEntity class
+
+        _orderEntity = await api.Load(_orderNumber.ToString());
+        JObject orderJObject = JObject.FromObject(_orderEntity);
+        _order.setOrderDetails(orderJObject);
 
         _scan.setListScannedProducts(_order.products);
 
         await Task.Delay(2000); // Example async operation
-
-        IsLoading = false;
-
+        isLoading = false;
         _showPage = true;
     }
 
-    private void enter()
+    private void Enter()
     {
         if (!string.IsNullOrWhiteSpace(_item))
         {
@@ -178,7 +183,7 @@ else
             {
                 _items.Add(_item + ": no existe.");
                 Logger.warning("Scan Operation: the item " + _item + " does not exist in the products Master Data.");
-                jsCalledMethod("wrongItem");
+                JsCalledMethod("wrongItem");
             }
             else
             {
@@ -193,14 +198,14 @@ else
                 {
                     _items.Add(_item + ": no requerido.");
                     Logger.warning("Scan Operation: the item " + _item + " was not required in the order.");
-                    jsCalledMethod("wrongItem");
+                    JsCalledMethod("wrongItem");
                 }
             }
         }
         _item = string.Empty;
     }
 
-    private void setDispatch()
+    private void SetDispatch()
     {
         _orderDispatched.orderNumber = _order.orderNumber;
         _orderDispatched.setSkuDetails(_scan.scannedProducts);
@@ -211,30 +216,34 @@ else
 
     private async Task CloseAsync()
     {
-        IsClosing = true;
+        isClosing = true;
         Logger.info("Scan Operation: order " + _orderNumber + " closed without save changes in Contapyme.");
-        setDispatch();
-        await Api.Action("PROCESS", _orderNumber.ToString());
-        IsClosing = false;
-        goToDispatch();
+        SetDispatch();
+        await api.Process(_orderNumber.ToString());
+        isClosing = false;
+        GoToDispatch();
     }
 
     private async Task SaveAsync()
     {
-        IsSaving = true;
+        isSaving = true;
         Logger.info("Scan Operation: order " + _orderNumber + " saved in Contapyme");
-        setDispatch();
-        await Api.Action("SAVE", _orderNumber.ToString(), _orderDispatched.orderJson);
-        await Api.Action("CALCULAR IMPUESTOS", _orderNumber.ToString(), _orderDispatched.orderJson);
-        await Api.Action("PROCESS", _orderNumber.ToString());
-        IsSaving = false;
-        goToDispatch();
+        SetDispatch();
+
+    //TODO: update the order details for managing the OrderEntity class
+        await api.Save(_orderNumber.ToString(), _orderEntity);
+        await api.Taxes(_orderNumber.ToString(), _orderEntity);
+
+        await api.Process(_orderNumber.ToString());
+        isSaving = false;
+        GoToDispatch();
     }
 
-    private void goToDispatch() => navManager.NavigateTo("/");
+    private void GoToDispatch() => navManager.NavigateTo("/");
 
-    private void jsCalledMethod(string idElement)
+    private void JsCalledMethod(string idElement)
     {
         jsRuntime.InvokeVoidAsync("playAudio", idElement);
     }
+
 }

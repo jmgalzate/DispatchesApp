@@ -2,10 +2,11 @@
 
 @using FioryLibrary.Connections;
 @using FioryApp.src.Service;
+@using FioryApp.src.Service
 
 @inject NavigationManager navManager
-@inject SessionService SessionService
-@inject ContapymeService Api
+@inject SessionService sessionService
+@inject ContapymeService api
 
 
 <div class="p-5 mb-4 bg-light rounded-3">
@@ -13,11 +14,11 @@
         <h1 class="display-5 fw-bold">Sistema de Despacho Fiory</h1>
 
         <!--Start Session Section-->
-        @if (string.IsNullOrEmpty(SessionService.KeyAgent))
+        @if (string.IsNullOrEmpty(sessionService.KeyAgent))
         {
 
-            <button disabled="@IsStartingSession" @onclick="@(async () => await StartSessionAsync())" type="button" class="btn btn-outline-primary deliveryButton">
-                @if (IsStartingSession)
+            <button disabled="@isStartingSession" @onclick="@(async () => await StartSessionAsync())" type="button" class="btn btn-outline-primary deliveryButton">
+                @if (isStartingSession)
                 {
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     <span>Loading...</span>
@@ -30,8 +31,8 @@
         }
         else
         {
-            <button disabled="@IsClosingSession" @onclick="@(async () => await CloseSessionAsync())" type="button" class="btn btn-outline-primary deliveryButton">
-                @if (IsClosingSession)
+            <button disabled="@isClosingSession" @onclick="@(async () => await CloseSessionAsync())" type="button" class="btn btn-outline-primary deliveryButton">
+                @if (isClosingSession)
                 {
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     <span>Loading...</span>
@@ -73,7 +74,7 @@
             <!-- Start Files-->
             <h2>Despachos Efectuados</h2>
             <button class="btn btn-primary"
-                    @onclick="goToDispatch">
+                    @onclick="GoToDispatch">
                  Agregar Despacho
             </button>
             <br><br>
@@ -94,35 +95,35 @@
 </div>
 
 @code {
-    private void goToDispatch() => navManager.NavigateTo("/Delivery");
+    private void GoToDispatch() => navManager.NavigateTo("/Delivery");
     private static string folderRoot => ConfigFiles.getReportFilesPath();
     private static List<string> filesInRoot => ConfigFiles.getFilesInFolder(folderRoot);
 
-    private bool IsStartingSession { get; set; } = false;
-    private bool IsClosingSession { get; set; } = false;
+    private bool isStartingSession { get; set; } = false;
+    private bool isClosingSession { get; set; } = false;
 
     private async Task StartSessionAsync()
     {
-        IsStartingSession = true;
+        isStartingSession = true;
 
-        await Api.SetContapymeAsync();
-        SessionService.UpdateSessionKeyAgent(Api.agente);
+        await api.SetContapymeAsync();
+        sessionService.UpdateSessionKeyAgent(api.agentkey);
 
-        IsStartingSession = false;
+        isStartingSession = false;
     }
 
     private string GetSessionValue()
     {
-        return SessionService.KeyAgent;
+        return sessionService.KeyAgent;
     }
 
     private async Task CloseSessionAsync()
     {
-        IsClosingSession = true;
+        isClosingSession = true;
 
-        await Api.CloseAgentAsync();
-        SessionService.UpdateSessionKeyAgent(null);
+        await api.CloseAgentAsync();
+        sessionService.UpdateSessionKeyAgent(null);
 
-        IsClosingSession = false;
+        isClosingSession = false;
     }
 }
