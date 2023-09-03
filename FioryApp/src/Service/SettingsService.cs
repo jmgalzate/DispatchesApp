@@ -1,33 +1,31 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace FioryLibrary.Connections;
+namespace FioryApp.src.Service;
 
-public class Settings
+public class SettingsService
 {
-    private readonly string? _path;
-    private readonly string? _appsettings;
     private readonly ConnectionStrings? _connection;
 
-    public Settings()
+    public SettingsService()
     {
         try
         {
-            _path = ConfigFiles.getConfigFilesPath("appsettings.json");
-            _appsettings = File.ReadAllText(_path);
-            _connection = JsonConvert.DeserializeObject<ConnectionStrings>(_appsettings);
-            Logger.info("AppSettings: file loaded");
+            var path = ConfigFilesService.GetConfigFilesPath("appsettings.json");
+            var appsettings = File.ReadAllText(path);
+            _connection = JsonConvert.DeserializeObject<ConnectionStrings>(appsettings);
+            LoggerService.info("AppSettings: file loaded");
         }
         catch (Exception ex)
         {
-            Logger.error("AppSettings: " + ex.Message);
+            LoggerService.error("AppSettings: " + ex.Message);
         }
     }
 
     public ConnectionStrings GetConnectionStrings() => _connection!;
 
-    public static string CalculateMD5Hash(string input)
+    public string CalculateMd5Hash(string input)
     {
         using (MD5 md5 = MD5.Create())
         {
@@ -54,4 +52,3 @@ public class ConnectionStrings
     public string? iapp { set; get; }
     public string? itdoper { set; get; }
 }
-

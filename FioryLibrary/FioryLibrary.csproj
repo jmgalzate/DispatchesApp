@@ -14,10 +14,6 @@
     <None Remove="Sales\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Operations\" />
-    <Folder Include="Sales\" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 </Project>

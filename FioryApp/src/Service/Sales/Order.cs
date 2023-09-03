@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using FioryApp.src.Entity;
 using Newtonsoft.Json.Linq;
 
-namespace FioryLibrary.Sales;
+namespace FioryApp.src.Service.Sales;
 
 public class Order : Sale
 {
@@ -17,14 +16,14 @@ public class Order : Sale
         this.setSkuDetails(this.products);
 
         if (this.products.Count == 1)
-            this.totalProductsToScan = decimal.Parse(this.products[0].qrecurso!);
+            this.totalProductsToScan = products[0].qrecurso;
         else
             this.totalProductsToScan = productsArray.Sum(m => (decimal)m.SelectToken("qrecurso")!);
 
         Sale.exportFile(this.orderJson!, "actual", this.orderNumber);
     }
 
-    public void setSkuDetails(List<Product> products)
+    public void setSkuDetails(List<OrderProduct> products)
     {
 
         int nProducts = products.Count;
@@ -51,7 +50,7 @@ public class Order : Sale
 
     private void setListOfProducts(JArray productsArray)
     {
-        List<Product> tempList = productsArray.ToObject<List<Product>>()!;
+        List<OrderProduct> tempList = productsArray.ToObject<List<OrderProduct>>()!;
 
         int total = tempList.Count;
 
@@ -61,12 +60,12 @@ public class Order : Sale
 
             if (index > -1)
             {
-                int valor = int.Parse(products[index].qrecurso!) + int.Parse(tempValue.qrecurso!);
-                products[index].qrecurso = valor.ToString();
+                int valor = products[index].qrecurso + tempValue.qrecurso;
+                products[index].qrecurso = valor;
             }
             else
             {
-                this.products.Add(new Product
+                this.products.Add(new OrderProduct()
                 {
                     irecurso = tempValue.irecurso,
                     itiporec = tempValue.itiporec,

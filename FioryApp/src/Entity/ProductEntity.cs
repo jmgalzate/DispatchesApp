@@ -2,8 +2,9 @@
 
 public class ProductEntity
 {
-	public string Name { set; get; }
-	public string Barcode { set; get; }
-	public string Code { set; get; }
-	public int Quantity { set; get; }
+	public string name { set; get; }
+	public string barcode { set; get; }
+	public string code { set; get; }
+	public int quantity { set; get; }
+	public int requested { set; get; }
 }

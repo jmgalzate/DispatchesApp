@@ -1,13 +1,11 @@
-using System;
-using System.Collections.Generic;
+using FioryApp.src.Entity;
 using Newtonsoft.Json.Linq;
-using FioryLibrary.Operations;
 
-namespace FioryLibrary.Sales;
+namespace FioryApp.src.Service.Sales;
 
 public class Dispatch : Sale
 {
-    private List<ScannedProduct>? ScannedProducts;
+    private List<ProductEntity>? ScannedProducts;
 
     private JObject? encabezado;
     private JObject? liquidacion;
@@ -39,7 +37,7 @@ public class Dispatch : Sale
         Sale.exportFile(order, "nuevo", this.orderNumber);
     }
 
-    public void setListOfProducts(List<Product> tempList)
+    public void setListOfProducts(List<OrderProduct> tempList)
     {
         foreach (var x in this.ScannedProducts!)
         {
@@ -47,15 +45,15 @@ public class Dispatch : Sale
             {
                 foreach (var y in tempList)
                 {
-                    if (x.sku == y.irecurso)
+                    if (x.code == y.irecurso)
                     {
 
                         int nRecurso = x.quantity;
-                        decimal vlr = nRecurso * decimal.Parse(y.mprecio!);
-                        decimal dcto = decimal.Parse(y.qporcdescuento!) / 100;
+                        decimal vlr = nRecurso * y.mprecio;
+                        decimal dcto = y.qporcdescuento / 100;
                         decimal vlrDescuento = dcto * vlr;
 
-                        this.products.Add(new Product
+                        this.products.Add(new OrderProduct()
                         {
                             irecurso = y.irecurso,
                             itiporec = y.itiporec,
@@ -68,11 +66,11 @@ public class Dispatch : Sale
                             dato5 = y.dato5,
                             dato6 = y.dato6,
                             iinventario = y.iinventario,
-                            qrecurso = x.quantity.ToString(),
+                            qrecurso = x.quantity,
                             mprecio = y.mprecio,
                             qporcdescuento = y.qporcdescuento,
                             qporciva = y.qporciva,
-                            mvrtotal = (vlr - vlrDescuento).ToString(),
+                            mvrtotal = (vlr - vlrDescuento),
                             valor1 = y.valor1,
                             valor2 = y.valor2,
                             valor3 = y.valor3,
@@ -85,7 +83,7 @@ public class Dispatch : Sale
         }
     }
 
-    public void setSkuDetails(List<ScannedProduct> scanned)
+    public void setSkuDetails(List<ProductEntity> scanned)
     {
         this.ScannedProducts = scanned;
     }

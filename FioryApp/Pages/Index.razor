@@ -1,8 +1,6 @@
 ﻿@page "/"
 
-@using FioryLibrary.Connections;
 @using FioryApp.src.Service;
-@using FioryApp.src.Service
 
 @inject NavigationManager navManager
 @inject SessionService sessionService
@@ -96,8 +94,8 @@
 
 @code {
     private void GoToDispatch() => navManager.NavigateTo("/Delivery");
-    private static string folderRoot => ConfigFiles.getReportFilesPath();
-    private static List<string> filesInRoot => ConfigFiles.getFilesInFolder(folderRoot);
+    private static string folderRoot => ConfigFilesService.GetReportFilesPath();
+    private static List<string> filesInRoot => ConfigFilesService.GetFilesInFolder(folderRoot);
 
     private bool isStartingSession { get; set; } = false;
     private bool isClosingSession { get; set; } = false;

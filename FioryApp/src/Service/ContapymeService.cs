@@ -1,5 +1,4 @@
-﻿using FioryLibrary.Connections;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using FioryApp.src.Entity;
 
@@ -29,7 +28,7 @@ public class ContapymeService
             var payload = new StringContent(newPostJson, System.Text.Encoding.UTF8, "application/json");
 
             HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(endpoint, payload);
-            Logger.info("Connection: response received from " + endpoint + " with status code: " +
+            LoggerService.info("Connection: response received from " + endpoint + " with status code: " +
                         httpResponseMessage.StatusCode);
 
             string responseContent = await httpResponseMessage.Content.ReadAsStringAsync();
@@ -39,7 +38,7 @@ public class ContapymeService
         }
         catch (HttpRequestException httpException)
         {
-            Logger.error("Connection: " + httpException.Message);
+            LoggerService.error("Connection: " + httpException.Message);
 
             // Create a custom error response with the desired structure
             return new ContapymeResult
@@ -51,8 +50,8 @@ public class ContapymeService
                         encabezado = new ContapymeHeader
                         {
                             resultado = false,
-                            imensaje = "Connection: " + httpException.Message,
-                            // Other properties here
+                            mensaje = "Connection: " + httpException.Message,
+                            
                         },
                         respuesta = new ContapymeBody
                         {
@@ -64,7 +63,7 @@ public class ContapymeService
         }
         catch (JsonException jsonException)
         {
-            Logger.error("JSON Deserialization Error: " + jsonException.Message);
+            LoggerService.error("JSON Deserialization Error: " + jsonException.Message);
 
             // Create a custom error response with the desired structure
             return new ContapymeResult
@@ -76,8 +75,8 @@ public class ContapymeService
                         encabezado = new ContapymeHeader
                         {
                             resultado = false,
-                            imensaje = "Connection: " + jsonException.Message,
-                            // Other properties here
+                            mensaje = "Connection: " + jsonException.Message,
+                            
                         },
                         respuesta = new ContapymeBody
                         {
@@ -91,7 +90,7 @@ public class ContapymeService
 
     public async Task SetContapymeAsync()
     {
-        Settings settings = new Settings();
+        SettingsService settings = new SettingsService();
         _connectionInformation = settings.GetConnectionStrings();
 
         _arrParams[2] = _connectionInformation.iapp!; // IAPP
@@ -111,7 +110,7 @@ public class ContapymeService
     private async Task<string> GetAuthAsync()
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TBasicoGeneral/\"GetAuth\"/");
-        Logger.info("Connection: sending request to " + endpoint);
+        LoggerService.info("Connection: sending request to " + endpoint);
 
         Dictionary<string, string> objParams = new Dictionary<string, string>
         {
@@ -139,7 +138,7 @@ public class ContapymeService
     public async Task CloseAgentAsync()
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TBasicoGeneral/\"Logout\"/");
-        Logger.info("Connection: sending request to " + endpoint);
+        LoggerService.info("Connection: sending request to " + endpoint);
         ContapymeResult response = await _requestPostAsync(endpoint, _setParameters(""));
 
         if (response.result[0].encabezado.resultado == false)
@@ -152,7 +151,7 @@ public class ContapymeService
     public async Task Unprocess(string orderNumber)
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-        Logger.info("Connection: sending request to " + endpoint);
+        LoggerService.info("Connection: sending request to " + endpoint);
 
         Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
         {
@@ -174,7 +173,7 @@ public class ContapymeService
     public async Task<OrderEntity> Load(string orderNumber)
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-        Logger.info("Connection: sending request to " + endpoint);
+        LoggerService.info("Connection: sending request to " + endpoint);
 
         Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
         {
@@ -197,7 +196,7 @@ public class ContapymeService
     public async Task Save(string orderNumber, OrderEntity order)
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-        Logger.info("Connection: sending request to " + endpoint);
+        LoggerService.info("Connection: sending request to " + endpoint);
 
         string orderJson = JsonConvert.SerializeObject(order);
         Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
@@ -221,7 +220,7 @@ public class ContapymeService
     public async Task Taxes(string orderNumber, OrderEntity order)
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-        Logger.info("Connection: sending request to " + endpoint);
+        LoggerService.info("Connection: sending request to " + endpoint);
 
         string orderJson = JsonConvert.SerializeObject(order);
         Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
@@ -245,7 +244,7 @@ public class ContapymeService
     public async Task Process(string orderNumber)
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-        Logger.info("Connection: sending request to " + endpoint);
+        LoggerService.info("Connection: sending request to " + endpoint);
 
         Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
         {
@@ -267,7 +266,7 @@ public class ContapymeService
     public async Task<ProductEntity> GetProductsAsync()
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatElemInv/\"GetListaElemInv\"/");
-        Logger.info("Connection: sending request to " + endpoint);
+        LoggerService.info("Connection: sending request to " + endpoint);
 
         string objSend =
             "{\"datospagina\":{\"cantidadregistros\":\"50000\",\"pagina\":\"\"},\"camposderetorno\":[\"irecurso\",\"nrecurso\",\"clase2\"]}";

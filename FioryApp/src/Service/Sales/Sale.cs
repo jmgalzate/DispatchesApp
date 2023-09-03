@@ -1,21 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using System.Text;
-using System.Xml.Linq;
+using FioryApp.src.Entity;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-using FioryLibrary.Connections;
 
-namespace FioryLibrary.Sales;
+namespace FioryApp.src.Service.Sales;
 
 public abstract class Sale
 {
     public int orderNumber;
     public JObject? orderJson;
-    public List<Product> products = new List<Product>();
+    public List<OrderProduct> products = new List<OrderProduct>();
     public String[]? listOfSku;
 
     public void setOrderNumber(int orderNumber)
@@ -55,7 +50,7 @@ public abstract class Sale
     public static void exportFile(JObject order, string name, int orderNumber)
     {
         char s = Path.DirectorySeparatorChar;
-        string folder = ConfigFiles.getReportFilesPath();
+        string folder = ConfigFilesService.GetReportFilesPath();
 
         string path = $"{folder}{name}_{orderNumber}.json";
         string orderToExport = JsonConvert.SerializeObject(order, Formatting.Indented);
@@ -63,7 +58,7 @@ public abstract class Sale
         File.WriteAllText(path, orderToExport);
     }
 
-    public static void exportReport(int orderNumber, JObject sale, List<Product> order, List<Product> dispatch)
+    public static void exportReport(int orderNumber, JObject sale, List<OrderProduct> order, List<OrderProduct> dispatch)
     {
         bool control = false;
         string cliente = JsonConvert.SerializeObject(sale["datosprincipales"]!["init"]);
@@ -71,7 +66,7 @@ public abstract class Sale
         string orderLiquidacion = JsonConvert.SerializeObject(sale["liquidacion"]!);
 
         char s = Path.DirectorySeparatorChar;
-        string folder = ConfigFiles.getReportFilesPath();
+        string folder = ConfigFilesService.GetReportFilesPath();
 
         string pathFile = $"{folder}reporte_{orderNumber}.txt";
 

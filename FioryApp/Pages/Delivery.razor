@@ -1,16 +1,16 @@
 ﻿@page "/Delivery"
 
-@using FioryApp.src.Service
-@using FioryLibrary.Connections;
-@using FioryLibrary.Operations;
-@using FioryLibrary.Sales;
-@using FioryApp.src.Entity;
-@using Newtonsoft.Json
 @using Newtonsoft.Json.Linq
+
+@using FioryApp.src.Service
+@using FioryApp.src.Entity
+@using FioryApp.src.Controller
+@using FioryApp.src.Service.Sales
 
 @inject NavigationManager navManager
 @inject IJSRuntime jsRuntime
 @inject ContapymeService api
+@inject ProductController productController
 
 <audio id="wrongItem">
     <source src="audio/notaded.mp3">
@@ -75,12 +75,12 @@ else
                             </tr>
                             </thead>
                             <tbody>
-                            @if (_scan.scannedProducts.Count > 0)
+                            @if (_scan.ScannedProducts.Count > 0)
                             {
-                                @foreach (ScannedProduct product in _scan.scannedProducts)
+                                @foreach (ProductEntity product in _scan.ScannedProducts)
                                 {
                                     <tr>
-                                        <td>@product.sku</td>
+                                        <td>@product.code</td>
                                         <td>@product.requested</td>
                                         <td>@product.quantity</td>
                                     </tr>
@@ -101,7 +101,7 @@ else
                     <div class="col">
                         <div class="card">
                             <div class="card-body">
-                                Despachados: @_scan.indexScanned
+                                Despachados: @_scan.IndexScanned
                             </div>
                         </div>
                     </div>
@@ -137,7 +137,7 @@ else
 @code{
 
     private readonly Order _order = new();
-    private readonly Scanned _scan = new();
+    private readonly ScanController _scan = new();
 
     private int _orderNumber;
     private OrderEntity _orderEntity = new();
@@ -155,8 +155,8 @@ else
     private async Task LoadAsync()
     {
         isLoading = true;
-        Logger.createLogFile().GetAwaiter().GetResult();
-        Logger.info("Scan Operation: the operation for scanning is started for order " + _orderNumber);
+        LoggerService.createLogFile().GetAwaiter().GetResult();
+        LoggerService.info("Scan Operation: the operation for scanning is started for order " + _orderNumber);
 
         _order.setOrderNumber(_orderNumber);
         await api.Unprocess(_orderNumber.ToString());
@@ -167,7 +167,7 @@ else
         JObject orderJObject = JObject.FromObject(_orderEntity);
         _order.setOrderDetails(orderJObject);
 
-        _scan.setListScannedProducts(_order.products);
+        _scan.SetListScannedProducts(_order.products);
 
         await Task.Delay(2000); // Example async operation
         isLoading = false;
@@ -178,11 +178,11 @@ else
     {
         if (!string.IsNullOrWhiteSpace(_item))
         {
-            string sku = MasterData.vLookup(_item);
+            string sku = productController.vLookup(_item);
             if (string.IsNullOrEmpty(sku))
             {
                 _items.Add(_item + ": no existe.");
-                Logger.warning("Scan Operation: the item " + _item + " does not exist in the products Master Data.");
+                LoggerService.warning("Scan Operation: the item " + _item + " does not exist in the products Master Data.");
                 JsCalledMethod("wrongItem");
             }
             else
@@ -190,14 +190,14 @@ else
                 var existsInOrder = _order.vlookup(sku);
                 if (existsInOrder == true)
                 {
-                    _scan.addProduct(sku, _item);
+                    _scan.AddProduct(sku, _item);
                     _items.Add(_item);
-                    _scan.indexScanned++;
+                    _scan.IndexScanned++;
                 }
                 else
                 {
                     _items.Add(_item + ": no requerido.");
-                    Logger.warning("Scan Operation: the item " + _item + " was not required in the order.");
+                    LoggerService.warning("Scan Operation: the item " + _item + " was not required in the order.");
                     JsCalledMethod("wrongItem");
                 }
             }
@@ -208,7 +208,7 @@ else
     private void SetDispatch()
     {
         _orderDispatched.orderNumber = _order.orderNumber;
-        _orderDispatched.setSkuDetails(_scan.scannedProducts);
+        _orderDispatched.setSkuDetails(_scan.ScannedProducts);
         _orderDispatched.setListOfProducts(_order.products);
         _orderDispatched.setOrderDetails(_order.orderJson!);
         Sale.exportReport(_orderDispatched.orderNumber, _orderDispatched.orderJson!, _order.products, _orderDispatched.products);
@@ -217,7 +217,7 @@ else
     private async Task CloseAsync()
     {
         isClosing = true;
-        Logger.info("Scan Operation: order " + _orderNumber + " closed without save changes in Contapyme.");
+        LoggerService.info("Scan Operation: order " + _orderNumber + " closed without save changes in Contapyme.");
         SetDispatch();
         await api.Process(_orderNumber.ToString());
         isClosing = false;
@@ -227,7 +227,7 @@ else
     private async Task SaveAsync()
     {
         isSaving = true;
-        Logger.info("Scan Operation: order " + _orderNumber + " saved in Contapyme");
+        LoggerService.info("Scan Operation: order " + _orderNumber + " saved in Contapyme");
         SetDispatch();
 
     //TODO: update the order details for managing the OrderEntity class
