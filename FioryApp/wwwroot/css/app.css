@@ -90,6 +90,19 @@ a, .btn-link {
     margin-left: 90%;
 }
 
+/* Default button style */
 .deliveryButton {
     margin-left: 1em;
+}
+
+/* Style for enabled button */
+.deliveryButton.enabled {
+    /* Your CSS styles for an enabled button */
+    background-color: #69E5C8; /* Example background color for an enabled button */
+}
+
+/* Style for disabled button */
+.deliveryButton.disabled {
+    /* Your CSS styles for a disabled button */
+    background-color: #ccc; /* Example background color for a disabled button */
 }

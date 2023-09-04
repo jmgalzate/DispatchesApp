@@ -17,44 +17,49 @@
 <div class="row align-items-md-stretch" style="padding-left: 2%; padding-right: 2%;">
     <div class="col-md-5">
         <div class="h-100 p-5 text-white bg-dark rounded-3">
-            
+
             <!-- Start Products -->
             <h2>Conexión con Contapyme</h2>
-            <hr> 
+            <hr>
             <!--Start Session Section-->
-                    @if (string.IsNullOrEmpty(sessionService.keyAgent))
+            @if (string.IsNullOrEmpty(sessionService.keyAgent))
+            {
+                <button disabled="@isStartingSession" 
+                        @onclick="@(async () => await StartSessionAsync())"
+                        type="button" class="btn btn-primary deliveryButton">
+                    @if (isStartingSession)
                     {
-            
-                        <button disabled="@isStartingSession" @onclick="@(async () => await StartSessionAsync())" type="button" class="btn btn-outline-primary deliveryButton">
-                            @if (isStartingSession)
-                            {
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                <span>Loading...</span>
-                            }
-                            else
-                            {
-                                <span>Iniciar Agente</span>
-                            }
-                        </button>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span>Loading...</span>
                     }
                     else
                     {
-                        <button disabled="@isClosingSession" @onclick="@(async () => await CloseSessionAsync())" type="button" class="btn btn-outline-primary deliveryButton">
-                            @if (isClosingSession)
-                            {
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                <span>Loading...</span>
-                            }
-                            else
-                            {
-                                <span>Cerrar Agente</span>
-                            }
-                        </button>
+                        <span>Iniciar Agente</span>
                     }
-                    <!-- End Session Section-->
+                </button>
+            }
+            else
+            {
+                <button disabled="@isClosingSession" 
+                        @onclick="@(async () => await CloseSessionAsync())" 
+                        type="button" class="btn btn-danger deliveryButton">
+                    @if (isClosingSession)
+                    {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span>Loading...</span>
+                    }
+                    else
+                    {
+                        <span>Cerrar Agente</span>
+                    }
+                </button>
+            }
+            <!-- End Session Section-->
 
-            <button disabled="@isLoadingProducts" @onclick="@(async () => await LoadProductsAsync())" type="button" class="btn 
-            btn-outline-primary deliveryButton">
+            <button type="button" class="btn @GetButtonClass()"
+                    disabled="@isButtonEnabled"
+                    @onclick="@(async () => await LoadProductsAsync())"
+                    >
                 @if (isLoadingProducts)
                 {
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -71,9 +76,12 @@
         <div class="h-100 p-5 bg-light border rounded-3">
             <!-- Start Files-->
             <h2>Despachos Efectuados</h2>
-            <button class="btn btn-primary"
-                    @onclick="GoToDispatch">
-                 Agregar Despacho
+
+            <button type="button" class="btn @GetButtonClass()"
+                    disabled="@isButtonEnabled"
+                    @onclick="GoToDispatch"
+                    >
+                Agregar Despacho
             </button>
             <br><br>
             <p>Estas son las órdenes que tienes en la carpeta: @folderRoot</p>
@@ -97,9 +105,11 @@
     private static string folderRoot => ConfigFilesService.GetReportFilesPath();
     private static List<string> filesInRoot => ConfigFilesService.GetFilesInFolder(folderRoot);
 
-    private bool isStartingSession { get; set; }  = false;
+    private bool isStartingSession { get; set; } = false;
     private bool isClosingSession { get; set; } = false;
     private bool isLoadingProducts { get; set; } = false;
+
+    private bool isButtonEnabled => string.IsNullOrEmpty(sessionService.keyAgent) || isLoadingProducts;
 
     private async Task StartSessionAsync()
     {
@@ -126,15 +136,21 @@
 
         isClosingSession = false;
     }
-    
+
     private async Task LoadProductsAsync()
     {
         isLoadingProducts = true;
-        
+
         List<ProductEntity> products = await api.GetProductsAsync();
 
         sessionService.UpdateSessionProducts(products);
 
         isLoadingProducts = false;
     }
+
+    private string GetButtonClass()
+    {
+        return isButtonEnabled ? "btn-outline-primary deliveryButton" : "btn-primary deliveryButton";
+    }
+
 }
