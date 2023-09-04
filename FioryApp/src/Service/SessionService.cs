@@ -9,13 +9,7 @@ public class SessionService
     public OrderEntity order { get; set; }
     public OrderEntity dispatch { get; set; }
     public List<ProductEntity> stock { get; private set; }
-    
-    public SessionService()
-    {
-        order = new OrderEntity();
-        dispatch = new OrderEntity();
-        stock = new List<ProductEntity>();
-    }
+    public int sessionProducts { get; private set; } = 0;
 
     public event EventHandler SessionStateChanged;
 
@@ -27,7 +21,16 @@ public class SessionService
     
     public void UpdateSessionProducts(List<ProductEntity> products)
     {
-        stock = products;
-        SessionStateChanged?.Invoke(this, EventArgs.Empty);
+        if(products == null)
+        {
+            sessionProducts = 0;
+            SessionStateChanged?.Invoke(this, EventArgs.Empty);
+        }
+        else
+        {
+            stock = products;
+            sessionProducts = products.Count;
+            SessionStateChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
 }

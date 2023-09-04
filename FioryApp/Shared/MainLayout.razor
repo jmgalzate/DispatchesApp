@@ -13,31 +13,17 @@
             @if (string.IsNullOrEmpty(SessionService.keyAgent))
             {
                 <div class="top-row px-4">
-                    <p>Debes de Iniciar el Agente</p>
+                    <p>Debes de establecer conexión con Contapyme</p>
                 </div>
             }
             else
             {
                 <div class="top-row px-4" style="background-color: #69E5C8;">
-                    <p>Conexión establecida con Contapyme</p>
+                    <p>Contapyme ID: @SessionService.keyAgent  |</p>
+                    <p>| Productos cargados: @SessionService.sessionProducts</p>
                 </div>
             }
         </div>
-        <div>
-            @if (SessionService.stock == null || SessionService.stock.Count == 0)
-            {
-                <div class="top-row px-4">
-                    <p>La lista de productos está vacía.</p>
-                </div>
-            }
-            else
-            {
-                <div class="top-row px-4" style="background-color: #69E5C8;">
-                    <p>Cantidad de Productos: @SessionService.stock.Count</p>
-                </div>
-            }
-        </div>
-
         <article class="content px-4">
             @Body
         </article>
