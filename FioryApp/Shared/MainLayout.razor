@@ -5,28 +5,44 @@
 
 <div class="page">
     <div class="sidebar">
-        <NavMenu />
+        <NavMenu/>
     </div>
 
     <main>
-        @if (string.IsNullOrEmpty(SessionService.KeyAgent))
-        {
-            <div class="top-row px-4">
-                <p>Debes de Iniciar el Agente</p>
-            </div>
-        }
-        else
-        {
-            <div class="top-row px-4" style="background-color: #69E5C8;">
-                <p>Conexión establecida con Contapyme</p>
-            </div>
-        }
+        <div>
+            @if (string.IsNullOrEmpty(SessionService.keyAgent))
+            {
+                <div class="top-row px-4">
+                    <p>Debes de Iniciar el Agente</p>
+                </div>
+            }
+            else
+            {
+                <div class="top-row px-4" style="background-color: #69E5C8;">
+                    <p>Conexión establecida con Contapyme</p>
+                </div>
+            }
+        </div>
+        <div>
+            @if (SessionService.stock == null || SessionService.stock.Count == 0)
+            {
+                <div class="top-row px-4">
+                    <p>La lista de productos está vacía.</p>
+                </div>
+            }
+            else
+            {
+                <div class="top-row px-4" style="background-color: #69E5C8;">
+                    <p>Cantidad de Productos: @SessionService.stock.Count</p>
+                </div>
+            }
+        </div>
 
         <article class="content px-4">
             @Body
         </article>
-
     </main>
+
 </div>
 
 @code {
@@ -40,7 +56,7 @@
     // Handle session state change
     private void HandleSessionStateChanged(object sender, EventArgs e)
     {
-        // Update UI or perform other actions as needed
+    // Update UI or perform other actions as needed
         StateHasChanged();
     }
 
@@ -49,5 +65,5 @@
     {
         SessionService.SessionStateChanged -= HandleSessionStateChanged;
     }
-}
 
+}

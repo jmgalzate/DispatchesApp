@@ -155,8 +155,8 @@ else
     private async Task LoadAsync()
     {
         isLoading = true;
-        LoggerService.createLogFile().GetAwaiter().GetResult();
-        LoggerService.info("Scan Operation: the operation for scanning is started for order " + _orderNumber);
+        LoggerService.CreateLogFile().GetAwaiter().GetResult();
+        LoggerService.Info("Scan Operation: the operation for scanning is started for order " + _orderNumber);
 
         _order.setOrderNumber(_orderNumber);
         await api.Unprocess(_orderNumber.ToString());
@@ -182,7 +182,7 @@ else
             if (string.IsNullOrEmpty(sku))
             {
                 _items.Add(_item + ": no existe.");
-                LoggerService.warning("Scan Operation: the item " + _item + " does not exist in the products Master Data.");
+                LoggerService.Warning("Scan Operation: the item " + _item + " does not exist in the products Master Data.");
                 JsCalledMethod("wrongItem");
             }
             else
@@ -197,7 +197,7 @@ else
                 else
                 {
                     _items.Add(_item + ": no requerido.");
-                    LoggerService.warning("Scan Operation: the item " + _item + " was not required in the order.");
+                    LoggerService.Warning("Scan Operation: the item " + _item + " was not required in the order.");
                     JsCalledMethod("wrongItem");
                 }
             }
@@ -217,7 +217,7 @@ else
     private async Task CloseAsync()
     {
         isClosing = true;
-        LoggerService.info("Scan Operation: order " + _orderNumber + " closed without save changes in Contapyme.");
+        LoggerService.Info("Scan Operation: order " + _orderNumber + " closed without save changes in Contapyme.");
         SetDispatch();
         await api.Process(_orderNumber.ToString());
         isClosing = false;
@@ -227,7 +227,7 @@ else
     private async Task SaveAsync()
     {
         isSaving = true;
-        LoggerService.info("Scan Operation: order " + _orderNumber + " saved in Contapyme");
+        LoggerService.Info("Scan Operation: order " + _orderNumber + " saved in Contapyme");
         SetDispatch();
 
     //TODO: update the order details for managing the OrderEntity class

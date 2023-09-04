@@ -2,9 +2,9 @@ namespace FioryApp.src.Service;
 
 public class LoggerService
 {
-    public static Task createLogFile()
+    public static Task CreateLogFile()
     {
-        string file = logFilePath();
+        string file = LogFilePath();
 
         if (!File.Exists(file))
         {
@@ -16,7 +16,7 @@ public class LoggerService
         return Task.CompletedTask;
     }
 
-    private static string logFilePath() {
+    private static string LogFilePath() {
         string folderPath = ConfigFilesService.GetConfigFilesPath("Logs");
         string fileName = "log_" + DateTime.Now.Year + DateTime.Now.Month + DateTime.Now.Day + ".txt";
         string file = folderPath + Path.DirectorySeparatorChar + fileName;
@@ -24,12 +24,12 @@ public class LoggerService
         return file;
     }
 
-    public static void info(string message) => addLog("INFO", message);
-    public static void error(string message) => addLog("ERROR", message);
-    public static void warning(string message) => addLog("WARN", message);
+    public static void Info(string message) => AddLog("INFO", message);
+    public static void Error(string message) => AddLog("ERROR", message);
+    public static void Warning(string message) => AddLog("WARN", message);
 
-    private static void addLog(string typeLog, string message) {
-        string file = logFilePath();
+    private static void AddLog(string typeLog, string message) {
+        string file = LogFilePath();
         string text = DateTime.Now + ": |" + typeLog + "| "+message + Environment.NewLine;
         StreamWriter sw = new StreamWriter(file, true);
         sw.Write(text);

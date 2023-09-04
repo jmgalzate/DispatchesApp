@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
+using FioryApp.src.Entity;
 
 namespace FioryApp.src.Service;
 
@@ -15,11 +16,11 @@ public class SettingsService
             var path = ConfigFilesService.GetConfigFilesPath("appsettings.json");
             var appsettings = File.ReadAllText(path);
             _connection = JsonConvert.DeserializeObject<ConnectionStrings>(appsettings);
-            LoggerService.info("AppSettings: file loaded");
+            LoggerService.Info("AppSettings: file loaded");
         }
         catch (Exception ex)
         {
-            LoggerService.error("AppSettings: " + ex.Message);
+            LoggerService.Error("AppSettings: " + ex.Message);
         }
     }
 
@@ -41,14 +42,4 @@ public class SettingsService
             return sb.ToString();
         }
     }
-}
-
-public class ConnectionStrings
-{
-    public string? server { set; get; }
-    public string? username { set; get; }
-    public string? password { set; get; }
-    public string? machineId { set; get; }
-    public string? iapp { set; get; }
-    public string? itdoper { set; get; }
 }

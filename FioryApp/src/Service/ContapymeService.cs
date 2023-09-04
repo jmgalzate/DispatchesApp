@@ -8,8 +8,10 @@ public class ContapymeService
 {
     private readonly Random _random = new();
     private readonly JObject[] _operationsArray = new JObject[1];
-    private ConnectionStrings _connectionInformation = new();
+    private ConnectionStrings _connectionInformation;
     private readonly string[] _arrParams = new string[4];
+    private int _cantProducts;
+    private string _itdoper;
 
     public string agentkey { get; set; }
 
@@ -18,27 +20,73 @@ public class ContapymeService
     public ContapymeService()
     {
     }
+    
+    public async Task SetContapymeAsync()
+    {
+        SettingsService settings = new SettingsService();
+        _connectionInformation = settings.GetConnectionStrings();
+
+        _cantProducts = _connectionInformation.cantProducts;
+        _itdoper = _connectionInformation.itdoper;
+
+        _arrParams[2] = _connectionInformation.iapp!; // IAPP
+        _arrParams[3] = _random.Next(0, 9).ToString(); // Random number from 0 to 9
+        _arrParams[1] = await GetAuthAsync(); // Keyagent
+    }
+    
+    private Dictionary<string, Array> _setParameters(string dataJson)
+    {
+        _arrParams[0] = dataJson;
+
+        Dictionary<string, Array> objSend = new Dictionary<string, Array>
+        {
+            { "_parameters", _arrParams }
+        };
+
+        return objSend;
+    }
 
     private async Task<ContapymeResult> _requestPostAsync(Uri endpoint, Dictionary<string, Array> objSend)
     {
+        HttpResponseMessage httpResponseMessage = null;
+        string responseContent = null;
+
         try
         {
             using var httpClient = new HttpClient();
             var newPostJson = JsonConvert.SerializeObject(objSend);
             var payload = new StringContent(newPostJson, System.Text.Encoding.UTF8, "application/json");
+            LoggerService.Info("Connection: sending request to " + endpoint + " with payload: " + newPostJson);
 
-            HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(endpoint, payload);
-            LoggerService.info("Connection: response received from " + endpoint + " with status code: " +
-                        httpResponseMessage.StatusCode);
+            httpResponseMessage = await httpClient.PostAsync(endpoint, payload);
+            LoggerService.Info("Connection: response received from " + endpoint + " with status code: " +
+                               httpResponseMessage.StatusCode);
 
-            string responseContent = await httpResponseMessage.Content.ReadAsStringAsync();
-            _contapymeResult = JsonConvert.DeserializeObject<ContapymeResult>(responseContent)!;
+            responseContent = await httpResponseMessage.Content.ReadAsStringAsync();
+
+            // Check if the response is empty or not in the expected format
+            if (string.IsNullOrEmpty(responseContent))
+            {
+                LoggerService.Error("Connection: Empty response received from " + endpoint);
+                // Handle this case as needed, e.g., return an error response
+            }
+            else
+            {
+                _contapymeResult = JsonConvert.DeserializeObject<ContapymeResult>(responseContent)!;
+            }
 
             return _contapymeResult;
         }
         catch (HttpRequestException httpException)
         {
-            LoggerService.error("Connection: " + httpException.Message);
+            LoggerService.Error("Connection: " + httpException.Message);
+
+            // Log the response content and status code in case of an exception
+            if (httpResponseMessage != null)
+            {
+                LoggerService.Error("Connection: Status Code: " + httpResponseMessage.StatusCode);
+                LoggerService.Error("Connection: Response Content: " + responseContent);
+            }
 
             // Create a custom error response with the desired structure
             return new ContapymeResult
@@ -51,7 +99,6 @@ public class ContapymeService
                         {
                             resultado = false,
                             mensaje = "Connection: " + httpException.Message,
-                            
                         },
                         respuesta = new ContapymeBody
                         {
@@ -63,7 +110,10 @@ public class ContapymeService
         }
         catch (JsonException jsonException)
         {
-            LoggerService.error("JSON Deserialization Error: " + jsonException.Message);
+            LoggerService.Warning("JSON Deserialization Error: " + jsonException.Message);
+
+            // Log the response content in case of a JSON deserialization error
+            LoggerService.Warning("JSON Deserialization Error: Response Content: " + responseContent);
 
             // Create a custom error response with the desired structure
             return new ContapymeResult
@@ -76,7 +126,6 @@ public class ContapymeService
                         {
                             resultado = false,
                             mensaje = "Connection: " + jsonException.Message,
-                            
                         },
                         respuesta = new ContapymeBody
                         {
@@ -88,19 +137,9 @@ public class ContapymeService
         }
     }
 
-    public async Task SetContapymeAsync()
-    {
-        SettingsService settings = new SettingsService();
-        _connectionInformation = settings.GetConnectionStrings();
-
-        _arrParams[2] = _connectionInformation.iapp!; // IAPP
-        _arrParams[3] = _random.Next(0, 9).ToString(); // Random number from 0 to 9
-        _arrParams[1] = await GetAuthAsync(); // Keyagent
-    }
-
     private JObject[] _getOperations(string orderNumber)
     {
-        string operations = "{\"inumoper\": \"" + (orderNumber) + "\", \"itdoper\": \"ORD1\"}";
+        string operations = "{\"inumoper\": \"" + (orderNumber) + "\", \"itdoper\": \"" + _itdoper + "\"}";
         _operationsArray[0] = JObject.Parse(operations);
         return _operationsArray;
     }
@@ -110,7 +149,6 @@ public class ContapymeService
     private async Task<string> GetAuthAsync()
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TBasicoGeneral/\"GetAuth\"/");
-        LoggerService.info("Connection: sending request to " + endpoint);
 
         Dictionary<string, string> objParams = new Dictionary<string, string>
         {
@@ -126,19 +164,18 @@ public class ContapymeService
             throw new Exception(
                 "Connection: the authentication was not processed successfully; please check the exception message"
             );
-
-        string dataJson = response.result[0].respuesta.datos.ToString(); // Convert JObject to JSON string
-        ContapymeBodyDataAuthentication
-            data = JsonConvert.DeserializeObject<ContapymeBodyDataAuthentication>(dataJson)!;
-
+        
+        JToken datosToken = response.result[0].respuesta.datos;
+        ContapymeBodyDataAuthentication data = datosToken.ToObject<ContapymeBodyDataAuthentication>();
+        
         agentkey = data.keyagente;
         return data.keyagente;
+        
     }
 
     public async Task CloseAgentAsync()
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TBasicoGeneral/\"Logout\"/");
-        LoggerService.info("Connection: sending request to " + endpoint);
         ContapymeResult response = await _requestPostAsync(endpoint, _setParameters(""));
 
         if (response.result[0].encabezado.resultado == false)
@@ -151,7 +188,6 @@ public class ContapymeService
     public async Task Unprocess(string orderNumber)
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-        LoggerService.info("Connection: sending request to " + endpoint);
 
         Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
         {
@@ -166,14 +202,13 @@ public class ContapymeService
                 "Connection: the authentication was not processed successfully; please check the exception message"
             );
 
-        string dataJson = response.result[0].respuesta.datos.ToString(); // Convert JObject to JSON string
-        ContapymeBodyData data = JsonConvert.DeserializeObject<ContapymeBodyData>(dataJson)!;
+        JToken datosToken = response.result[0].respuesta.datos;
+        ContapymeBodyData data = datosToken.ToObject<ContapymeBodyData>();
     }
 
     public async Task<OrderEntity> Load(string orderNumber)
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-        LoggerService.info("Connection: sending request to " + endpoint);
 
         Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
         {
@@ -188,15 +223,14 @@ public class ContapymeService
                 "Connection: the authentication was not processed successfully; please check the exception message"
             );
 
-        string dataJson = response.result[0].respuesta.datos.ToString(); // Convert JObject to JSON string
-        OrderEntity   data = JsonConvert.DeserializeObject<OrderEntity>(dataJson)!;
+        JToken datosToken = response.result[0].respuesta.datos;
+        OrderEntity data = datosToken.ToObject<OrderEntity>();
         return data;
     }
 
     public async Task Save(string orderNumber, OrderEntity order)
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-        LoggerService.info("Connection: sending request to " + endpoint);
 
         string orderJson = JsonConvert.SerializeObject(order);
         Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
@@ -213,14 +247,13 @@ public class ContapymeService
                 "Connection: the authentication was not processed successfully; please check the exception message"
             );
 
-        string dataJson = response.result[0].respuesta.datos.ToString(); // Convert JObject to JSON string
-        ContapymeBodyData data = JsonConvert.DeserializeObject<ContapymeBodyData>(dataJson)!;
+        JToken datosToken = response.result[0].respuesta.datos;
+        ContapymeBodyData data = datosToken.ToObject<ContapymeBodyData>();
     }
 
     public async Task Taxes(string orderNumber, OrderEntity order)
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-        LoggerService.info("Connection: sending request to " + endpoint);
 
         string orderJson = JsonConvert.SerializeObject(order);
         Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
@@ -237,14 +270,13 @@ public class ContapymeService
                 "Connection: the authentication was not processed successfully; please check the exception message"
             );
 
-        string dataJson = response.result[0].respuesta.datos.ToString(); // Convert JObject to JSON string
-        ContapymeBodyData data = JsonConvert.DeserializeObject<ContapymeBodyData>(dataJson)!;
+        JToken datosToken = response.result[0].respuesta.datos;
+        ContapymeBodyData data = datosToken.ToObject<ContapymeBodyData>();
     }
 
     public async Task Process(string orderNumber)
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-        LoggerService.info("Connection: sending request to " + endpoint);
 
         Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
         {
@@ -259,39 +291,26 @@ public class ContapymeService
                 "Connection: the authentication was not processed successfully; please check the exception message"
             );
 
-        string dataJson = response.result[0].respuesta.datos.ToString(); // Convert JObject to JSON string
-        ContapymeBodyData data = JsonConvert.DeserializeObject<ContapymeBodyData>(dataJson)!;
+        JToken datosToken = response.result[0].respuesta.datos;
+        ContapymeBodyData data = datosToken.ToObject<ContapymeBodyData>();
     }
 
-    public async Task<ProductEntity> GetProductsAsync()
+    public async Task<List<ProductEntity>> GetProductsAsync()
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatElemInv/\"GetListaElemInv\"/");
-        LoggerService.info("Connection: sending request to " + endpoint);
 
         string objSend =
-            "{\"datospagina\":{\"cantidadregistros\":\"50000\",\"pagina\":\"\"},\"camposderetorno\":[\"irecurso\",\"nrecurso\",\"clase2\"]}";
+            "{\"datospagina\":{\"cantidadregistros\":\"" + _cantProducts +
+            "\",\"pagina\":\"\"},\"camposderetorno\":[\"irecurso\",\"nrecurso\",\"clase2\"]}";
 
         ContapymeResult response = await _requestPostAsync(endpoint, _setParameters(objSend));
         if (response.result[0].encabezado.resultado == false)
             throw new Exception(
                 "Connection: the authentication was not processed successfully; please check the exception message"
             );
-
-        string dataJson = response.result[0].respuesta.datos.ToString(); // Convert JObject to JSON string
-        ProductEntity data = JsonConvert.DeserializeObject<ProductEntity>(dataJson)!;
-
-        return data;
-    }
-
-    private Dictionary<string, Array> _setParameters(string dataJson)
-    {
-        _arrParams[0] = dataJson;
-
-        Dictionary<string, Array> objSend = new Dictionary<string, Array>
-        {
-            { "_parameters", _arrParams }
-        };
-
-        return objSend;
+        
+        JToken datosToken = response.result[0].respuesta.datos;
+        List<ProductEntity> productList = datosToken.ToObject<List<ProductEntity>>();
+        return productList;
     }
 }

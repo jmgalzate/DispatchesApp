@@ -1,6 +1,7 @@
 ﻿@page "/"
 
 @using FioryApp.src.Service;
+@using FioryApp.src.Entity
 
 @inject NavigationManager navManager
 @inject SessionService sessionService
@@ -12,7 +13,7 @@
         <h1 class="display-5 fw-bold">Sistema de Despacho Fiory</h1>
 
         <!--Start Session Section-->
-        @if (string.IsNullOrEmpty(sessionService.KeyAgent))
+        @if (string.IsNullOrEmpty(sessionService.keyAgent))
         {
 
             <button disabled="@isStartingSession" @onclick="@(async () => await StartSessionAsync())" type="button" class="btn btn-outline-primary deliveryButton">
@@ -54,17 +55,19 @@
         <div class="h-100 p-5 text-white bg-dark rounded-3">
             <!-- Start Products -->
             <h2>Recursos cargados</h2>
-            <button class="btn btn-primary">
-                 Cargar Productos
+            
+            <button disabled="@isLoadingProducts" @onclick="@(async () => await LoadProductsAsync())" type="button" class="btn 
+            btn-outline-primary deliveryButton">
+                @if (isLoadingProducts)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span>Loading...</span>
+                }
+                else
+                {
+                    <span>Cargar Productos</span>
+                }
             </button>
-            <br><br>
-            <h4>Estado de la carga:</h4>
-            <!--If products were uploaded -->
-            <p>Se han cargado <!--Cant of products --> productos.</p>
-            <!--Else-->
-            <p>No se han cargado productos.</p>
-            <!--End if-->
-            <!-- End Products -->
         </div>
     </div>
     <div class="col-md-7">
@@ -97,8 +100,9 @@
     private static string folderRoot => ConfigFilesService.GetReportFilesPath();
     private static List<string> filesInRoot => ConfigFilesService.GetFilesInFolder(folderRoot);
 
-    private bool isStartingSession { get; set; } = false;
+    private bool isStartingSession { get; set; }  = false;
     private bool isClosingSession { get; set; } = false;
+    private bool isLoadingProducts { get; set; } = false;
 
     private async Task StartSessionAsync()
     {
@@ -112,7 +116,7 @@
 
     private string GetSessionValue()
     {
-        return sessionService.KeyAgent;
+        return sessionService.keyAgent;
     }
 
     private async Task CloseSessionAsync()
@@ -121,7 +125,19 @@
 
         await api.CloseAgentAsync();
         sessionService.UpdateSessionKeyAgent(null);
+        sessionService.UpdateSessionProducts(null);
 
         isClosingSession = false;
+    }
+    
+    private async Task LoadProductsAsync()
+    {
+        isLoadingProducts = true;
+        
+        List<ProductEntity> products = await api.GetProductsAsync();
+
+        sessionService.UpdateSessionProducts(products);
+
+        isLoadingProducts = false;
     }
 }

@@ -26,7 +26,7 @@ public class ContapymeHeader
 
 public class ContapymeBody
 {
-    public JObject datos { set; get; }
+    public JToken datos { set; get; }
 }
 
 /**** Objects to deserialize each kind of API body response ****/
