@@ -6,7 +6,7 @@ public class SessionService
 {
     public string keyAgent { get; private set; }
     public List<ProductEntity> productsList { get; private set; }
-    public int sessionProducts { get; private set; } = 0;
+    public int sessionProducts { get; set; } = 0;
 
     public event EventHandler SessionStateChanged;
 

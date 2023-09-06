@@ -78,7 +78,7 @@
             <h2>Despachos Efectuados</h2>
 
             <button type="button" class="btn @GetButtonClass()"
-                    disabled="@isButtonEnabled"
+                    disabled="@isButtonEnabledAddDispatch"
                     @onclick="GoToDispatch"
                     >
                 Agregar Despacho
@@ -111,6 +111,9 @@
 
     private bool isButtonEnabled => string.IsNullOrEmpty(sessionService.keyAgent) || isLoadingProducts;
 
+    private bool isButtonEnabledAddDispatch => string.IsNullOrEmpty(sessionService.keyAgent) || (sessionService
+        .sessionProducts == 0);
+
     private async Task StartSessionAsync()
     {
         isStartingSession = true;
@@ -119,11 +122,6 @@
         sessionService.UpdateSessionKeyAgent(api.agentkey);
 
         isStartingSession = false;
-    }
-
-    private string GetSessionValue()
-    {
-        return sessionService.keyAgent;
     }
 
     private async Task CloseSessionAsync()
@@ -140,11 +138,8 @@
     private async Task LoadProductsAsync()
     {
         isLoadingProducts = true;
-
         List<ProductEntity> products = await api.GetProductsAsync();
-
         sessionService.UpdateSessionProducts(products);
-
         isLoadingProducts = false;
     }
 
