@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace FioryApp.src.Entity;
+namespace FioryApp.Entity;
 
 public class ProductEntity
 {

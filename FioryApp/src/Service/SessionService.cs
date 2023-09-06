@@ -1,6 +1,6 @@
-﻿using FioryApp.src.Entity;
+﻿using FioryApp.Entity;
 
-namespace FioryApp.src.Service;
+namespace FioryApp.Service;
 
 public class SessionService
 {

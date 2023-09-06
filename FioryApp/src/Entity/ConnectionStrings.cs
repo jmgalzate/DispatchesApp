@@ -1,4 +1,4 @@
-namespace FioryApp.src.Entity;
+namespace FioryApp.Entity;
 
 public class ConnectionStrings
 {

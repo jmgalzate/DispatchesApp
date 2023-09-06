@@ -1,7 +1,7 @@
-using FioryApp.src.Entity;
-using FioryApp.src.Service;
+using FioryApp.Entity;
+using FioryApp.Service;
 
-namespace FioryApp.src.Controller;
+namespace FioryApp.Controller;
 
 public class DeliveryController
 {
@@ -102,7 +102,7 @@ public class DeliveryController
                     // If the product exists in the Dispatch then sum 1 to quantity
                     foundDispatchProduct.qrecurso++;
                     totalProductsScanned++;
-                    return targetBarcode + " producto sumado";
+                    return targetBarcode + "producto sumado";
                 }
                 else
                 {
@@ -129,19 +129,19 @@ public class DeliveryController
                     
                     productsDispatch.Add(newDispatchProduct);
                     totalProductsScanned++;
-                    return targetBarcode + " producto agregado";
+                    return "producto agregado";
                 }
             }
             else
             {
                 // If the product does not exist in the Order then return a message
-                return targetBarcode + " producto no requerido";
+                return targetBarcode + "producto no requerido";
             }
         }
         else
         {
             // If the product does not exist in Master Data then return a message
-            return targetBarcode + " producto no encontrado";
+            return targetBarcode + "producto no encontrado";
         }
     }
 }

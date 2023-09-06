@@ -1,7 +1,7 @@
 ﻿@inherits LayoutComponentBase
-@using FioryApp.src.Service
+@using FioryApp.Service
 
-@inject SessionService SessionService
+@inject SessionService sessionService
 
 <div class="page">
     <div class="sidebar">
@@ -10,7 +10,7 @@
 
     <main>
         <div>
-            @if (string.IsNullOrEmpty(SessionService.keyAgent))
+            @if (string.IsNullOrEmpty(sessionService.keyAgent))
             {
                 <div class="top-row px-4">
                     <p>Debes de establecer conexión con Contapyme</p>
@@ -19,8 +19,8 @@
             else
             {
                 <div class="top-row px-4" style="background-color: #69E5C8;">
-                    <p>Contapyme ID: @SessionService.keyAgent  |</p>
-                    <p>| Productos cargados: @SessionService.sessionProducts</p>
+                    <p>Contapyme ID: @sessionService.keyAgent  |</p>
+                    <p>| Productos cargados: @sessionService.sessionProducts</p>
                 </div>
             }
         </div>
@@ -35,7 +35,7 @@
     // Subscribe to SessionStateChanged event
     protected override void OnInitialized()
     {
-        SessionService.SessionStateChanged += HandleSessionStateChanged;
+        sessionService.SessionStateChanged += HandleSessionStateChanged;
         base.OnInitialized();
     }
 
@@ -49,7 +49,7 @@
     // Unsubscribe when component is disposed
     public void Dispose()
     {
-        SessionService.SessionStateChanged -= HandleSessionStateChanged;
+        sessionService.SessionStateChanged -= HandleSessionStateChanged;
     }
 
 }

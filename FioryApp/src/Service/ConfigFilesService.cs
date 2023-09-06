@@ -1,4 +1,4 @@
-namespace FioryApp.src.Service;
+namespace FioryApp.Service;
 
 public class ConfigFilesService
 {

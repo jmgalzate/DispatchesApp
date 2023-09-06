@@ -1,13 +1,13 @@
 using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
-using FioryApp.src.Entity;
+using FioryApp.Entity;
 
-namespace FioryApp.src.Service;
+namespace FioryApp.Service;
 
 public class SettingsService
 {
-    private readonly ConnectionStrings? _connection;
+    private readonly ConnectionStrings _connection;
 
     public SettingsService()
     {

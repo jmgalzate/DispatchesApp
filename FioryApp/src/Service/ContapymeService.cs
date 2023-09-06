@@ -1,8 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using FioryApp.Entity;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using FioryApp.src.Entity;
 
-namespace FioryApp.src.Service;
+namespace FioryApp.Service;
+
 
 public class ContapymeService
 {

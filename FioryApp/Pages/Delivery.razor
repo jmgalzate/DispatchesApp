@@ -1,15 +1,12 @@
 ﻿@page "/Delivery"
 
-@using Newtonsoft.Json.Linq
-
-@using FioryApp.src.Service
-@using FioryApp.src.Entity
-@using FioryApp.src.Controller
+@using FioryApp.Service
+@using FioryApp.Entity
+@using FioryApp.Controller
 
 @inject NavigationManager navManager
 @inject IJSRuntime jsRuntime
 @inject ContapymeService api
-@inject DeliveryController deliveryController
 
 <audio id="wrongItem">
     <source src="audio/notaded.mp3">
@@ -74,9 +71,9 @@ else
                             </tr>
                             </thead>
                             <tbody>
-                            @if (deliveryController.productsOrder.Count > 0)
+                            @if (_deliveryController.totalProductsToScan > 0)
                             {
-                                @foreach (ProductEntity product in deliveryController.productsOrder)
+                                @foreach (ProductEntity product in _deliveryController.productsOrder)
                                 {
                                     <tr>
                                         <td>@product.code</td>
@@ -93,14 +90,14 @@ else
                     <div class="col">
                         <div class="card">
                             <div class="card-body">
-                                Solicitados: @deliveryController.totalProductsToScan
+                                Solicitados: @_deliveryController.totalProductsToScan
                             </div>
                         </div>
                     </div>
                     <div class="col">
                         <div class="card">
                             <div class="card-body">
-                                Despachados: @deliveryController.totalProductsScanned
+                                Despachados: @_deliveryController.totalProductsScanned
                             </div>
                         </div>
                     </div>
@@ -108,30 +105,30 @@ else
                 <div class="row">
                     <div class="card">
                         <div class="card-body">
-                            Eficiencia: @deliveryController.totalProductsToScan / @deliveryController.totalProductsScanned %
+                            Eficiencia: (@_deliveryController.totalProductsScanned / @_deliveryController.totalProductsToScan) %
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="col" id="dispatchContainer">
-                    <div class="row">
-                        <form @onsubmit="Enter">
-                            <div class="input-group input-group-md mb-2">
-                                <span class="input-group-text" id="inputGroup-sizing-sm">EAN:</span>
-                                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-md" @bind="_item">
-                            </div>
-                        </form>
-                    </div>
-                    <div class="row justify-content-md-center">
-                        <div class="col-md-auto">
-                            <div class="card" style="width: 23rem;">
-                                <ul class="list-group list-group-flush">
-                                    @foreach (string item in _items)
-                                    {
-                                        <li class="list-group-item">@item</li>
-                                    }
-                                </ul>
-                            </div>
+            <div class="col" id="dispatchContainer">
+                <div class="row">
+                    <form @onsubmit="Enter">
+                        <div class="input-group input-group-md mb-2">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">EAN:</span>
+                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-md" @bind="_item">
+                        </div>
+                    </form>
+                </div>
+                <div class="row justify-content-md-center">
+                    <div class="col-md-auto">
+                        <div class="card" style="width: 23rem;">
+                            <ul class="list-group list-group-flush">
+                                @foreach (string item in _items)
+                                {
+                                    <li class="list-group-item">@item</li>
+                                }
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -141,35 +138,43 @@ else
 }
 
 @code{
-    
+
     /** Manage Bind Variables**/
     private int _orderNumber;
+
     private string _item;
     private readonly List<string> _items = new();
-    
+    private readonly DeliveryController _deliveryController = new();
+
     /** Manage FrontEnd objects**/
     private bool _showPage;
-    private bool isLoading { get; set; } = false;
-    private bool isClosing { get; set; } = false;
-    private bool isSaving { get; set; } = false;
 
-    
+    private bool isLoading { get; set; }
+    private bool isClosing { get; set; }
+    private bool isSaving { get; set; }
+
+
     /** Manage Methods**/
-
     private async Task LoadAsync()
     {
         isLoading = true;
         await api.Unprocess(_orderNumber.ToString());
-        deliveryController.SetDeliveryController(await api.Load(_orderNumber.ToString()), _orderNumber);
+        _deliveryController.SetDeliveryController(await api.Load(_orderNumber.ToString()), _orderNumber);
         await Task.Delay(2000); // Example async operation
         isLoading = false;
         _showPage = true;
     }
-    
+
     private void Enter()
     {
         if (!string.IsNullOrWhiteSpace(_item))
-            _items.Add(deliveryController.SetProductsDispatched(_item));
+        {
+            var message = _deliveryController.SetProductsDispatched(_item);
+            
+            if (message == "producto no requerido" || message == "producto no encontrado")
+                JsCalledMethod("wrongItem");
+            _items.Add(_item + " " + message);
+        }
         _item = string.Empty;
     }
 
@@ -177,7 +182,7 @@ else
     {
         isClosing = true;
         LoggerService.Info("Scan Operation: order " + _orderNumber + " closed without save changes in Contapyme.");
-        deliveryController.SetDispatch();
+        _deliveryController.SetDispatch();
         await api.Process(_orderNumber.ToString());
         isClosing = false;
         GoToDispatch();
@@ -187,10 +192,10 @@ else
     {
         isSaving = true;
         LoggerService.Info("Scan Operation: order " + _orderNumber + " saved in Contapyme");
-        deliveryController.SetDispatch();
-        
-        await api.Save(_orderNumber.ToString(), deliveryController.dispatchObj);
-        await api.Taxes(_orderNumber.ToString(), deliveryController.dispatchObj);
+        _deliveryController.SetDispatch();
+
+        await api.Save(_orderNumber.ToString(), _deliveryController.dispatchObj);
+        await api.Taxes(_orderNumber.ToString(), _deliveryController.dispatchObj);
 
         await api.Process(_orderNumber.ToString());
         isSaving = false;
@@ -203,5 +208,5 @@ else
     {
         jsRuntime.InvokeVoidAsync("playAudio", idElement);
     }
-}
 
+}
