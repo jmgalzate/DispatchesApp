@@ -9,10 +9,11 @@ public class DeliveryController
     public OrderEntity dispatchObj { get; set; }
     public int orderNumber { get; set; }
 
-    public int totalProductsToScan { get; private set; } = 0;
-    public int totalProductsScanned { get; private set; } = 0;
+    public int totalProductsToScan { get; private set; }
+    public int totalProductsScanned { get; private set; }
+    public decimal efficiency { get; private set; }
     public List<ProductEntity> productsOrder { get; private set; }
-    public List<OrderProduct> productsDispatch { get; set; }
+    public List<OrderProduct> productsDispatch { get; set; } //Pending to Set
 
 
     private readonly SessionService _sessionService = new();
@@ -102,6 +103,8 @@ public class DeliveryController
                     // If the product exists in the Dispatch then sum 1 to quantity
                     foundDispatchProduct.qrecurso++;
                     totalProductsScanned++;
+                    decimal result = (decimal)totalProductsScanned / totalProductsScanned;
+                    efficiency = Math.Round(result, 3);
                     return targetBarcode + "producto sumado";
                 }
                 else
@@ -129,6 +132,8 @@ public class DeliveryController
                     
                     productsDispatch.Add(newDispatchProduct);
                     totalProductsScanned++;
+                    decimal result = (decimal)totalProductsScanned / totalProductsScanned;
+                    efficiency = Math.Round(result, 3);
                     return "producto agregado";
                 }
             }
