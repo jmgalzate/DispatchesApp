@@ -1,14 +1,11 @@
 ﻿using FioryApp.src.Entity;
-using FioryApp.src.Service.Sales;
 
 namespace FioryApp.src.Service;
 
 public class SessionService
 {
     public string keyAgent { get; private set; }
-    public OrderEntity order { get; set; }
-    public OrderEntity dispatch { get; set; }
-    public List<ProductEntity> stock { get; private set; }
+    public List<ProductEntity> productsList { get; private set; }
     public int sessionProducts { get; private set; } = 0;
 
     public event EventHandler SessionStateChanged;
@@ -18,17 +15,17 @@ public class SessionService
         keyAgent = agentToken;
         SessionStateChanged?.Invoke(this, EventArgs.Empty);
     }
-    
+
     public void UpdateSessionProducts(List<ProductEntity> products)
     {
-        if(products == null)
+        if (products == null)
         {
             sessionProducts = 0;
             SessionStateChanged?.Invoke(this, EventArgs.Empty);
         }
         else
         {
-            stock = products;
+            productsList = products;
             sessionProducts = products.Count;
             SessionStateChanged?.Invoke(this, EventArgs.Empty);
         }
