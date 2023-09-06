@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using FioryApp.src.Service;
+using FioryApp.Service;
 
 namespace FioryApp;
 
