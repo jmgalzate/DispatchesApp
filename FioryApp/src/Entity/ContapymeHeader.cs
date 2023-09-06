@@ -1,5 +1,5 @@
 namespace FioryApp.Entity;
-
+#nullable enable
 public class ContapymeHeader
 {
     public bool? resultado { init; get; }

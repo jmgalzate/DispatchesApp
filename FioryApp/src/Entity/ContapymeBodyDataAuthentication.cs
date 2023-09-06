@@ -1,5 +1,5 @@
 namespace FioryApp.Entity;
-
+#nullable enable
 public class ContapymeBodyDataAuthentication
 {
     public string? keyagente {set; get; }

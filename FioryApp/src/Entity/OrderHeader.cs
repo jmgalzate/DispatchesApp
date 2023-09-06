@@ -1,5 +1,5 @@
 namespace FioryApp.Entity;
-
+#nullable enable
 public class OrderHeader
 {
     public string? tdetalle { get; set; }

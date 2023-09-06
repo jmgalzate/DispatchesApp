@@ -1,5 +1,5 @@
 namespace FioryApp.Entity;
-
+#nullable enable
 public class OrderMainData
 {
     public string? init { get; set; }

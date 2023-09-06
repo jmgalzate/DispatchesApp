@@ -1,5 +1,5 @@
 namespace FioryApp.Entity;
-
+#nullable enable
 public class OrderProduct
 {
     public string? irecurso { get; set; }

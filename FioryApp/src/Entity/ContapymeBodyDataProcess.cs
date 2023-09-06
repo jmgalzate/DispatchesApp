@@ -1,5 +1,5 @@
 namespace FioryApp.Entity;
-
+#nullable enable
 public class ContapymeBodyDataProcess : ContapymeBodyData
 {
     public string? errores {set; get; }
