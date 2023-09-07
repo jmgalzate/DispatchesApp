@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 	<PropertyGroup>
-		<TargetFrameworks>net7.0-android;net7.0-ios;net7.0-maccatalyst</TargetFrameworks>
+		<TargetFramework>net7.0-maccatalyst</TargetFramework>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net7.0-tizen</TargetFrameworks> -->
@@ -27,6 +27,8 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 		<DockerComposeProjectPath>../docker-compose.dcproj</DockerComposeProjectPath>
 		<ReleaseVersion>2.1.5.0</ReleaseVersion>
+		<Version>2.1.6.0</Version>
+		<RepositoryUrl>https://github.com/jmgalzate/DispatchesApp</RepositoryUrl>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
 		<CreatePackage>false</CreatePackage>
@@ -37,6 +39,7 @@
 	<!-- Property for reading the debugging on Apple MAC -->
 	<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst' and '$(Configuration)' == 'Debug'">
 		<CodeSignEntitlements>Platforms/MacCatalyst/Entitlements.Debug.plist</CodeSignEntitlements>
+		<MtouchDebug>true</MtouchDebug>
 	</PropertyGroup>
 	<ItemGroup>
 		<!-- App Icon -->
@@ -51,9 +54,12 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
-	</ItemGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\FioryLibrary\FioryLibrary.csproj" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+		<PackageReference Update="Microsoft.Maui.Graphics" Version="8.0.0-preview.7.8842" />
+		<PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0-preview.7.23375.6" />
+		<PackageReference Update="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.0-preview.7.8842" />
+		<PackageReference Update="Microsoft.Extensions.Configuration" Version="8.0.0-preview.7.23375.6" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Remove="wwwroot\css\bootstrap5.3\" />
@@ -65,7 +71,6 @@
 		<Folder Include="wwwroot\css\bootstrap5.3\" />
 		<Folder Include="wwwroot\js\" />
 		<Folder Include="wwwroot\audio\" />
-		<Folder Include="Data\" />
 	</ItemGroup>
 	<ItemGroup>
 	  <BundleResource Include="wwwroot\audio\notaded.mp3">
@@ -75,5 +80,9 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <None Remove="Data\" />
+	  <None Remove="src\" />
+	  <None Remove="src\Service\" />
+	  <None Remove="src\Controller\" />
+	  <None Remove="src\Entity\" />
 	</ItemGroup>
 </Project>
