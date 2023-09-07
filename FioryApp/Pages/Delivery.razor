@@ -74,7 +74,7 @@ else
                             <tbody>
                                 @if (_deliveryController.totalProductsToScan > 0)
                                 {
-                                    @foreach (ProductEntity product in _deliveryController.productsOrder)
+                                    @foreach (ProductEntity product in _deliveryController.productsRequested)
                                     {
                                         <tr>
                                             <td>@product.code</td>

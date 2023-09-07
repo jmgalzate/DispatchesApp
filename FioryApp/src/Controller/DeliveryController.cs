@@ -11,7 +11,8 @@ public class DeliveryController
     public int totalProductsToScan { get; private set; }
     public int totalProductsScanned { get; private set; }
     public decimal efficiency { get; private set; }
-    public List<ProductEntity> productsOrder { get; private set; }
+    public List<ProductEntity> productsRequested { get; private set; }
+    private List<OrderProduct> productsInOrder { get; set; }
     private List<OrderProduct> productsDispatch { get; set; }
 
     private readonly List<ProductEntity> _productList;
@@ -28,13 +29,20 @@ public class DeliveryController
 
         orderObj = contapymeOrder;
         ConfigFilesService.ExportFile(orderObj, "actual", order);
-        
+
         SetProductsOrder(orderObj.listaproductos);
+        productsInOrder = orderObj.listaproductos!.Select(op => op.ToOrderProduct()).ToList();
 
         dispatchObj = new OrderEntity
         {
             encabezado = orderObj.encabezado,
-            liquidacion = new OrderInvoiceSettlement(),
+            liquidacion = new OrderInvoiceSettlement
+            {
+                parcial = "",
+                total = "",
+                descuento = "",
+                iva = ""
+            },
             datosprincipales = orderObj.datosprincipales,
             listaproductos = null,
             qoprsok = orderObj.qoprsok
@@ -45,14 +53,16 @@ public class DeliveryController
 
     public void SetDispatch(int order)
     {
-        dispatchObj.listaproductos = productsDispatch;
+        List<OrderProductStrings> productsDispatchStrings =
+            productsDispatch.Select(op => op.ToOrderProductStrings()).ToList();
+        dispatchObj.listaproductos = productsDispatchStrings;
         dispatchObj.encabezado!.iusuarioult = "WEBAPI";
         ConfigFilesService.ExportFile(dispatchObj, "nuevo", order);
         ConfigFilesService.ExportReport(dispatchObj.datosprincipales!.init, dispatchObj.encabezado!.fcreacion, order,
-            efficiency, productsOrder);
+            efficiency, productsRequested);
     }
 
-    private void SetProductsOrder(List<OrderProduct> products)
+    private void SetProductsOrder(List<OrderProductStrings> products)
     {
         // Step 1: Group and Sum Duplicates in the First Object
         var groupedProducts = products
@@ -60,7 +70,7 @@ public class DeliveryController
             .Select(group => new OrderProduct
             {
                 irecurso = group.Key,
-                qrecurso = group.Sum(p => p.qrecurso)
+                qrecurso = group.Sum(p => Int32.Parse(p.qrecurso!))
             })
             .ToList();
 
@@ -73,8 +83,8 @@ public class DeliveryController
         }).ToList();
 
         // Step 3: Assign the Second Object to the Property
-        productsOrder = productEntities;
-        totalProductsToScan = productsOrder.Sum(product => product.requested);
+        productsRequested = productEntities;
+        totalProductsToScan = productsRequested.Sum(product => product.requested);
     }
 
     public string SetProductsDispatched(string targetBarcode)
@@ -89,7 +99,7 @@ public class DeliveryController
             {
                 // Step 2: Find the product in the Order List
                 OrderProduct foundProductInOrder =
-                    orderObj.listaproductos!.FirstOrDefault(product => product.irecurso == foundProduct.code);
+                    productsInOrder.FirstOrDefault(product => product.irecurso == foundProduct.code);
 
                 if (foundProductInOrder != null)
                 {
@@ -112,26 +122,28 @@ public class DeliveryController
                             mprecio = foundProductInOrder.mprecio,
                             qporcdescuento = foundProductInOrder.qporcdescuento,
                             qporciva = foundProductInOrder.qporciva,
-                            mvrtotal = (foundProductInOrder.mprecio - (foundProductInOrder.mprecio * foundProductInOrder.qporcdescuento / 100) * 1),
+                            mvrtotal = (foundProductInOrder.mprecio -
+                                        (foundProductInOrder.mprecio * foundProductInOrder.qporcdescuento / 100) * 1),
                             valor1 = foundProductInOrder.valor1,
                             valor2 = foundProductInOrder.valor2,
                             valor3 = foundProductInOrder.valor3,
                             valor4 = foundProductInOrder.valor4,
                             qrecurso2 = foundProductInOrder.qrecurso2,
                         });
-                        
+
                         message = "Producto agregado";
-                        productsOrder[productsOrder.FindIndex(product => product.code == foundProduct.code)].quantity++;
+                        productsRequested[productsRequested.FindIndex(product => product.code == foundProduct.code)]
+                            .quantity++;
                         totalProductsScanned++;
                         efficiency = Math.Round((decimal)totalProductsScanned / totalProductsToScan, 3);
                     }
                     else
                     {
                         int foundProductIndexRequested =
-                            productsOrder.FindIndex(product => product.code == foundProduct.code);
+                            productsRequested.FindIndex(product => product.code == foundProduct.code);
 
-                        if (productsOrder[foundProductIndexRequested].requested ==
-                            productsOrder[foundProductIndexRequested].quantity)
+                        if (productsRequested[foundProductIndexRequested].requested ==
+                            productsRequested[foundProductIndexRequested].quantity)
                         {
                             message = "Producto ya completado";
                             return message;
@@ -171,7 +183,8 @@ public class DeliveryController
                                     mprecio = foundProductInOrder.mprecio,
                                     qporcdescuento = foundProductInOrder.qporcdescuento,
                                     qporciva = foundProductInOrder.qporciva,
-                                    mvrtotal = (foundProductInOrder.mprecio - (foundProductInOrder.mprecio * foundProductInOrder.qporcdescuento / 100) * 1),
+                                    mvrtotal = (foundProductInOrder.mprecio - (foundProductInOrder.mprecio *
+                                        foundProductInOrder.qporcdescuento / 100) * 1),
                                     valor1 = foundProductInOrder.valor1,
                                     valor2 = foundProductInOrder.valor2,
                                     valor3 = foundProductInOrder.valor3,
@@ -180,7 +193,9 @@ public class DeliveryController
                                 });
                             }
                         }
-                        productsOrder[productsOrder.FindIndex(product => product.code == foundProduct.code)].quantity++;
+
+                        productsRequested[productsRequested.FindIndex(product => product.code == foundProduct.code)]
+                            .quantity++;
                         totalProductsScanned++;
                         efficiency = Math.Round((decimal)totalProductsScanned / totalProductsToScan, 3);
                         message = "Producto agregado";

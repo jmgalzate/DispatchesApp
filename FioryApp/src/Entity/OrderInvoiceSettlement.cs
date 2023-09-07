@@ -1,9 +1,9 @@
 namespace FioryApp.Entity;
-
+#nullable enable
 public class OrderInvoiceSettlement
 {
-    public decimal parcial { get; set; }
-    public decimal descuento { get; set; }
-    public decimal iva { get; set; }
-    public decimal total { get; set; }
+    public string? parcial { get; set; }
+    public string? descuento { get; set; }
+    public string? iva { get; set; }
+    public string? total { get; set; }
 }

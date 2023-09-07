@@ -1,6 +1,6 @@
 namespace FioryApp.Entity;
 #nullable enable
-public class OrderProduct
+public class OrderProductStrings
 {
     public string? irecurso { get; init; }
     public string? itiporec { get; init; }
@@ -13,20 +13,20 @@ public class OrderProduct
     public string? dato5 { get; init; }
     public string? dato6 { get; init; }
     public string? iinventario { get; init; }
-    public Int32 qrecurso { get; set; }
-    public decimal mprecio { get; init; }
-    public decimal qporcdescuento { get; init; }
+    public string? qrecurso { get; set; }
+    public string? mprecio { get; init; }
+    public string? qporcdescuento { get; init; }
     public string? qporciva { get; init; }
-    public decimal mvrtotal { get; set; }
+    public string? mvrtotal { get; set; }
     public string? valor1 { get; init; }
     public string? valor2 { get; init; }
     public string? valor3 { get; init; }
     public string? valor4 { get; init; }
     public string? qrecurso2 { get; init; }
     
-    public OrderProductStrings ToOrderProductStrings()
+    public OrderProduct ToOrderProduct()
     {
-        return new OrderProductStrings
+        return new OrderProduct
         {
             irecurso = this.irecurso,
             itiporec = this.itiporec,
@@ -38,12 +38,12 @@ public class OrderProduct
             dato4 = this.dato4,
             dato5 = this.dato5,
             dato6 = this.dato6,
-            iinventario = this.iinventario.ToString(), // Convert Int32 to string
-            qrecurso = this.qrecurso.ToString(), // Convert Int32 to string
-            mprecio = this.mprecio.ToString(), // Convert decimal to string
-            qporcdescuento = this.qporcdescuento.ToString(), // Convert decimal to string
+            iinventario = this.iinventario,
+            qrecurso = Int32.Parse(this.qrecurso!),
+            mprecio = decimal.Parse(this.mprecio!),
+            qporcdescuento = decimal.Parse(this.qporcdescuento!),
             qporciva = this.qporciva,
-            mvrtotal = this.mvrtotal.ToString(), // Convert decimal to string
+            mvrtotal = decimal.Parse(this.mvrtotal!),
             valor1 = this.valor1,
             valor2 = this.valor2,
             valor3 = this.valor3,
