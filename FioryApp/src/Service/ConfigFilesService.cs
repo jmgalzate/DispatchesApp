@@ -1,3 +1,6 @@
+using FioryApp.Entity;
+using Newtonsoft.Json;
+
 namespace FioryApp.Service;
 
 public class ConfigFilesService
@@ -44,7 +47,7 @@ public class ConfigFilesService
         return filesinRoot;
     }
 
-    public static string OperativeSystem() {
+    private static string OperativeSystem() {
 
         string os = "";
         if (OperatingSystem.IsWindows())
@@ -61,8 +64,8 @@ public class ConfigFilesService
         return os;
     }
     
-    /*
-    public static void exportFile(JObject order, string name, int orderNumber)
+    
+    public static void ExportFile(OrderEntity order, string name, int orderNumber)
     {
         char s = Path.DirectorySeparatorChar;
         string folder = ConfigFilesService.GetReportFilesPath();
@@ -73,7 +76,7 @@ public class ConfigFilesService
         File.WriteAllText(path, orderToExport);
     }
 
-
+/*
     public static void exportReport(int orderNumber, JObject sale, List<OrderProduct> order, List<OrderProduct> dispatch)
     {
         bool control = false;

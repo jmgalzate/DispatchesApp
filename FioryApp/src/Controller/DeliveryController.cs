@@ -5,23 +5,20 @@ namespace FioryApp.Controller;
 
 public class DeliveryController
 {
-    public OrderEntity orderObj { get; set; }
+    private OrderEntity orderObj { get; set; }
     public OrderEntity dispatchObj { get; private set; }
 
     public int totalProductsToScan { get; private set; }
     public int totalProductsScanned { get; private set; }
     public decimal efficiency { get; private set; }
     public List<ProductEntity> productsOrder { get; private set; }
-    private List<OrderProduct> productsDispatch { get; set; } //Pending to Set
+    private List<OrderProduct> productsDispatch { get; set; }
 
-
-    private readonly SessionService _sessionService;
     private readonly List<ProductEntity> _productList;
 
     public DeliveryController(SessionService sessionService)
     {
-        _sessionService = sessionService;
-        _productList = _sessionService.productsList;
+        _productList = sessionService.productsList;
     }
 
     public void SetDeliveryController(OrderEntity contapymeOrder, int order)
@@ -30,6 +27,8 @@ public class DeliveryController
         LoggerService.Info("Scan Operation: the operation for scanning is started for order " + order);
 
         orderObj = contapymeOrder;
+        ConfigFilesService.ExportFile(orderObj, "actual", order);
+        
         SetProductsOrder(orderObj.listaproductos);
 
         dispatchObj = new OrderEntity
@@ -44,10 +43,11 @@ public class DeliveryController
         productsDispatch = new List<OrderProduct>();
     }
 
-    public void SetDispatch()
+    public void SetDispatch(int order)
     {
         dispatchObj.listaproductos = productsDispatch;
-        dispatchObj.encabezado.iusuarioult = "WEBAPI";
+        dispatchObj.encabezado!.iusuarioult = "WEBAPI";
+        ConfigFilesService.ExportFile(dispatchObj, "nuevo", order);
     }
 
     private void SetProductsOrder(List<OrderProduct> products)
@@ -65,11 +65,9 @@ public class DeliveryController
         // Step 2: Create the Second Object from the First
         var productEntities = groupedProducts.Select(orderProduct => new ProductEntity
         {
-            name = orderProduct.irecurso, // Assign irecurso to name
-            barcode = "", // You can assign an empty string or specify a value for barcode
-            code = orderProduct.irecurso, // Assign irecurso to code
-            quantity = 0, // You can assign 0 or specify a value for quantity
-            requested = orderProduct.qrecurso // Assign summed qrecurso to requested
+            code = orderProduct.irecurso,
+            quantity = 0,
+            requested = orderProduct.qrecurso
         }).ToList();
 
         // Step 3: Assign the Second Object to the Property
@@ -89,7 +87,7 @@ public class DeliveryController
             {
                 // Step 2: Find the product in the Order List
                 OrderProduct foundProductInOrder =
-                    orderObj.listaproductos.FirstOrDefault(product => product.irecurso == foundProduct.code);
+                    orderObj.listaproductos!.FirstOrDefault(product => product.irecurso == foundProduct.code);
 
                 if (foundProductInOrder != null)
                 {
@@ -122,8 +120,6 @@ public class DeliveryController
                     }
                     else
                     {
-                        //TODO: check if the scanned quantity is the same as the requested quantity. If yes, then don't sum it to the list
-
                         int foundProductIndexRequested =
                             productsOrder.FindIndex(product => product.code == foundProduct.code);
 

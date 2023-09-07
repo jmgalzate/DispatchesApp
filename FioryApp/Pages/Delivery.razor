@@ -191,7 +191,7 @@ else
     {
         isClosing = true;
         LoggerService.Info("Scan Operation: order " + _orderNumber + " closed without save changes in Contapyme.");
-        _deliveryController.SetDispatch();
+        _deliveryController.SetDispatch(_orderNumber);
         await api.Process(_orderNumber.ToString());
         isClosing = false;
         GoToDispatch();
@@ -201,7 +201,7 @@ else
     {
         isSaving = true;
         LoggerService.Info("Scan Operation: order " + _orderNumber + " saved in Contapyme");
-        _deliveryController.SetDispatch();
+        _deliveryController.SetDispatch(_orderNumber);
 
         await api.Save(_orderNumber.ToString(), _deliveryController.dispatchObj);
         await api.Taxes(_orderNumber.ToString(), _deliveryController.dispatchObj);
