@@ -75,7 +75,7 @@ public class DeliveryController
 
         // Step 3: Assign the Second Object to the Property
         productsOrder = productEntities;
-        totalProductsToScan = productsOrder.Count;
+        totalProductsToScan = productsOrder.Sum(product => product.requested);
     }
 
     public string SetProductsDispatched(string targetBarcode)
@@ -166,7 +166,7 @@ public class DeliveryController
 
                     productsOrder[productsOrder.FindIndex(product => product.code == foundProduct.code)].quantity++;
                     totalProductsScanned++;
-                    efficiency = (decimal)totalProductsScanned / totalProductsToScan;
+                    efficiency = Math.Round((decimal)totalProductsScanned / totalProductsToScan, 3);
 
                     message = "Producto agregado";
                 }
