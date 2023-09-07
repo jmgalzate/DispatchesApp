@@ -108,17 +108,22 @@ public class DeliveryController
                             dato5 = foundProductInOrder.dato5,
                             dato6 = foundProductInOrder.dato6,
                             iinventario = foundProductInOrder.iinventario,
-                            qrecurso = foundProductInOrder.qrecurso,
+                            qrecurso = 1,
                             mprecio = foundProductInOrder.mprecio,
                             qporcdescuento = foundProductInOrder.qporcdescuento,
                             qporciva = foundProductInOrder.qporciva,
-                            mvrtotal = foundProductInOrder.mvrtotal,
+                            mvrtotal = (foundProductInOrder.mprecio - (foundProductInOrder.mprecio * foundProductInOrder.qporcdescuento / 100) * 1),
                             valor1 = foundProductInOrder.valor1,
                             valor2 = foundProductInOrder.valor2,
                             valor3 = foundProductInOrder.valor3,
                             valor4 = foundProductInOrder.valor4,
                             qrecurso2 = foundProductInOrder.qrecurso2,
                         });
+                        
+                        message = "Producto agregado";
+                        productsOrder[productsOrder.FindIndex(product => product.code == foundProduct.code)].quantity++;
+                        totalProductsScanned++;
+                        efficiency = Math.Round((decimal)totalProductsScanned / totalProductsToScan, 3);
                     }
                     else
                     {
@@ -162,11 +167,11 @@ public class DeliveryController
                                     dato5 = foundProductInOrder.dato5,
                                     dato6 = foundProductInOrder.dato6,
                                     iinventario = foundProductInOrder.iinventario,
-                                    qrecurso = foundProductInOrder.qrecurso,
+                                    qrecurso = 1,
                                     mprecio = foundProductInOrder.mprecio,
                                     qporcdescuento = foundProductInOrder.qporcdescuento,
                                     qporciva = foundProductInOrder.qporciva,
-                                    mvrtotal = foundProductInOrder.mvrtotal,
+                                    mvrtotal = (foundProductInOrder.mprecio - (foundProductInOrder.mprecio * foundProductInOrder.qporcdescuento / 100) * 1),
                                     valor1 = foundProductInOrder.valor1,
                                     valor2 = foundProductInOrder.valor2,
                                     valor3 = foundProductInOrder.valor3,
@@ -175,13 +180,11 @@ public class DeliveryController
                                 });
                             }
                         }
+                        productsOrder[productsOrder.FindIndex(product => product.code == foundProduct.code)].quantity++;
+                        totalProductsScanned++;
+                        efficiency = Math.Round((decimal)totalProductsScanned / totalProductsToScan, 3);
+                        message = "Producto agregado";
                     }
-
-                    productsOrder[productsOrder.FindIndex(product => product.code == foundProduct.code)].quantity++;
-                    totalProductsScanned++;
-                    efficiency = Math.Round((decimal)totalProductsScanned / totalProductsToScan, 3);
-
-                    message = "Producto agregado";
                 }
                 else
                 {
