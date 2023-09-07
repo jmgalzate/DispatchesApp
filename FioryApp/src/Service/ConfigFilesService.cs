@@ -1,3 +1,4 @@
+using System.Text;
 using FioryApp.Entity;
 using Newtonsoft.Json;
 
@@ -64,28 +65,23 @@ public class ConfigFilesService
         return os;
     }
     
-    
     public static void ExportFile(OrderEntity order, string name, int orderNumber)
     {
         char s = Path.DirectorySeparatorChar;
-        string folder = ConfigFilesService.GetReportFilesPath();
+        string folder = GetReportFilesPath();
 
         string path = $"{folder}{name}_{orderNumber}.json";
         string orderToExport = JsonConvert.SerializeObject(order, Formatting.Indented);
 
         File.WriteAllText(path, orderToExport);
     }
-
-/*
-    public static void exportReport(int orderNumber, JObject sale, List<OrderProduct> order, List<OrderProduct> dispatch)
+    
+    public static void ExportReport(string cliente, string fcreacion, int orderNumber, decimal efficiency, List<ProductEntity> 
+            products)
     {
-        bool control = false;
-        string cliente = JsonConvert.SerializeObject(sale["datosprincipales"]!["init"]);
-        string fcreacion = JsonConvert.SerializeObject(sale["encabezado"]!["fcreacion"]);
-        string orderLiquidacion = JsonConvert.SerializeObject(sale["liquidacion"]!);
 
         char s = Path.DirectorySeparatorChar;
-        string folder = ConfigFilesService.GetReportFilesPath();
+        string folder = GetReportFilesPath();
 
         string pathFile = $"{folder}reporte_{orderNumber}.txt";
 
@@ -96,29 +92,16 @@ public class ConfigFilesService
         file.AppendLine($"NIT Cliente: \t{cliente}");
         file.AppendLine($"Fecha Orden: \t{fcreacion}");
         file.AppendLine($"\n");
+        file.AppendLine($"Eficiencia: \t{efficiency}%");
+        file.AppendLine($"\n");
         file.AppendLine("Producto\t\tRequeridos\tEscaneados");
 
-        foreach (var requested in order)
+        foreach (var product in products)
         {
-            control = false;
-
-            foreach (var scanned in dispatch)
-            {
-                if (requested.irecurso == scanned.irecurso)
-                {
-                    control = true;
-                    file.AppendLine($"{requested.irecurso} \t\t {requested.qrecurso} \t\t {scanned.qrecurso}");
-                    break;
-                }
-                else
-                    continue;
-            }
-
-            if (control == false)
-                file.AppendLine($"{requested.irecurso} \t\t {requested.qrecurso} \t\t 0");
+            file.AppendLine($"{product.code} \t\t {product.requested} \t\t {product.quantity}");
         }
 
         File.WriteAllText(pathFile, file.ToString());
     }
-    */
+
 }

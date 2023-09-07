@@ -48,6 +48,8 @@ public class DeliveryController
         dispatchObj.listaproductos = productsDispatch;
         dispatchObj.encabezado!.iusuarioult = "WEBAPI";
         ConfigFilesService.ExportFile(dispatchObj, "nuevo", order);
+        ConfigFilesService.ExportReport(dispatchObj.datosprincipales!.init, dispatchObj.encabezado!.fcreacion, order,
+            efficiency, productsOrder);
     }
 
     private void SetProductsOrder(List<OrderProduct> products)
