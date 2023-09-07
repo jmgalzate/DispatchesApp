@@ -26,7 +26,6 @@ public class DeliveryController
 
     public void SetDeliveryController(OrderEntity contapymeOrder, int order)
     {
-
         LoggerService.CreateLogFile().GetAwaiter().GetResult();
         LoggerService.Info("Scan Operation: the operation for scanning is started for order " + order);
 
@@ -89,7 +88,8 @@ public class DeliveryController
             if (foundProduct != null)
             {
                 // Step 2: Find the product in the Order List
-                OrderProduct foundProductInOrder = orderObj.listaproductos.FirstOrDefault(product => product.irecurso == foundProduct.code);
+                OrderProduct foundProductInOrder =
+                    orderObj.listaproductos.FirstOrDefault(product => product.irecurso == foundProduct.code);
 
                 if (foundProductInOrder != null)
                 {
@@ -122,45 +122,60 @@ public class DeliveryController
                     }
                     else
                     {
-                        int foundProductIndex = productsDispatch.FindIndex(product => product.irecurso == foundProduct.code);
+                        //TODO: check if the scanned quantity is the same as the requested quantity. If yes, then don't sum it to the list
 
-                        if (foundProductIndex >= 0)
+                        int foundProductIndexRequested =
+                            productsOrder.FindIndex(product => product.code == foundProduct.code);
+
+                        if (productsOrder[foundProductIndexRequested].requested ==
+                            productsOrder[foundProductIndexRequested].quantity)
                         {
-                            productsDispatch[foundProductIndex].qrecurso = productsDispatch[foundProductIndex].qrecurso + 1;
-                            decimal newPrice = productsDispatch[foundProductIndex].qrecurso *
-                                productsDispatch[foundProductIndex]
-                                .mprecio;
-
-                            decimal discount = productsDispatch[foundProductIndex].qporcdescuento / 100;
-                            productsDispatch[foundProductIndex].mvrtotal = newPrice - (newPrice * discount);
-
+                            message = "Producto ya completado";
+                            return message;
                         }
                         else
                         {
-                            productsDispatch.Add(new OrderProduct
+                            int foundProductIndexDispatch =
+                                productsDispatch.FindIndex(product => product.irecurso == foundProduct.code);
+
+                            if (foundProductIndexDispatch >= 0)
                             {
-                                irecurso = foundProductInOrder.irecurso,
-                                itiporec = foundProductInOrder.itiporec,
-                                icc = foundProductInOrder.icc,
-                                sobserv = foundProductInOrder.sobserv,
-                                dato1 = foundProductInOrder.dato1,
-                                dato2 = foundProductInOrder.dato2,
-                                dato3 = foundProductInOrder.dato3,
-                                dato4 = foundProductInOrder.dato4,
-                                dato5 = foundProductInOrder.dato5,
-                                dato6 = foundProductInOrder.dato6,
-                                iinventario = foundProductInOrder.iinventario,
-                                qrecurso = foundProductInOrder.qrecurso,
-                                mprecio = foundProductInOrder.mprecio,
-                                qporcdescuento = foundProductInOrder.qporcdescuento,
-                                qporciva = foundProductInOrder.qporciva,
-                                mvrtotal = foundProductInOrder.mvrtotal,
-                                valor1 = foundProductInOrder.valor1,
-                                valor2 = foundProductInOrder.valor2,
-                                valor3 = foundProductInOrder.valor3,
-                                valor4 = foundProductInOrder.valor4,
-                                qrecurso2 = foundProductInOrder.qrecurso2,
-                            });
+                                productsDispatch[foundProductIndexDispatch].qrecurso =
+                                    productsDispatch[foundProductIndexDispatch].qrecurso + 1;
+                                decimal newPrice = productsDispatch[foundProductIndexDispatch].qrecurso *
+                                                   productsDispatch[foundProductIndexDispatch]
+                                                       .mprecio;
+
+                                decimal discount = productsDispatch[foundProductIndexDispatch].qporcdescuento / 100;
+                                productsDispatch[foundProductIndexDispatch].mvrtotal = newPrice - (newPrice * discount);
+                            }
+                            else
+                            {
+                                productsDispatch.Add(new OrderProduct
+                                {
+                                    irecurso = foundProductInOrder.irecurso,
+                                    itiporec = foundProductInOrder.itiporec,
+                                    icc = foundProductInOrder.icc,
+                                    sobserv = foundProductInOrder.sobserv,
+                                    dato1 = foundProductInOrder.dato1,
+                                    dato2 = foundProductInOrder.dato2,
+                                    dato3 = foundProductInOrder.dato3,
+                                    dato4 = foundProductInOrder.dato4,
+                                    dato5 = foundProductInOrder.dato5,
+                                    dato6 = foundProductInOrder.dato6,
+                                    iinventario = foundProductInOrder.iinventario,
+                                    qrecurso = foundProductInOrder.qrecurso,
+                                    mprecio = foundProductInOrder.mprecio,
+                                    qporcdescuento = foundProductInOrder.qporcdescuento,
+                                    qporciva = foundProductInOrder.qporciva,
+                                    mvrtotal = foundProductInOrder.mvrtotal,
+                                    valor1 = foundProductInOrder.valor1,
+                                    valor2 = foundProductInOrder.valor2,
+                                    valor3 = foundProductInOrder.valor3,
+                                    valor4 = foundProductInOrder.valor4,
+                                    qrecurso2 = foundProductInOrder.qrecurso2,
+                                });
+                            }
                         }
                     }
 
@@ -179,7 +194,6 @@ public class DeliveryController
             {
                 message = "Producto no encontrado";
             }
-        
         }
         catch (Exception e)
         {
@@ -189,5 +203,4 @@ public class DeliveryController
 
         return message;
     }
-
 }

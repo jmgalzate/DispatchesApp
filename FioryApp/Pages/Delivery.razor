@@ -168,11 +168,19 @@ else
 
     private void Enter()
     {
+        List<string> validMessages = new List<string>
+        {
+            "Producto no solicitado",
+            "Producto no encontrado",
+            "Error de ejecución",
+            "Producto ya completado"
+        };
+        
         if (!string.IsNullOrWhiteSpace(_item))
         {
             var message = _deliveryController.SetProductsDispatched(_item);
-
-            if (message == "Producto no solicitado" || message == "Producto no encontrado" || message == "Error de ejecución")
+            
+            if (validMessages.Contains(message))
                 JsCalledMethod("wrongItem");
             _items.Add(_item + " " + message);
         }
