@@ -92,8 +92,6 @@ public class ConfigFilesService
         file.AppendLine($"NIT Cliente: \t{cliente}");
         file.AppendLine($"Fecha Orden: \t{fcreacion}");
         file.AppendLine($"\n");
-        file.AppendLine($"Eficiencia: \t{efficiency}%");
-        file.AppendLine($"\n");
         file.AppendLine("Producto\t\tRequeridos\tEscaneados");
 
         foreach (var product in products)
@@ -101,7 +99,11 @@ public class ConfigFilesService
             file.AppendLine($"{product.code} \t\t {product.requested} \t\t {product.quantity}");
         }
 
+        file.AppendLine($"\n");
+        file.AppendLine(
+            $"Totales: \t\t {products.Sum(product => product.requested)} \t\t {products.Sum(product => product.quantity)}");
+        file.AppendLine($"Eficiencia: \t{efficiency}%");
+        
         File.WriteAllText(pathFile, file.ToString());
     }
-
 }
