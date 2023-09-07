@@ -7,6 +7,7 @@
 @inject NavigationManager navManager
 @inject IJSRuntime jsRuntime
 @inject ContapymeService api
+@inject SessionService sessionService
 
 <audio id="wrongItem">
     <source src="audio/notaded.mp3">
@@ -15,7 +16,7 @@
 
 @if (_showPage == false)
 {
-    <input type="number" @bind="_orderNumber" @bind:event="oninput"/>
+    <input type="number" @bind="_orderNumber" @bind:event="oninput" />
     <button disabled="@isLoading" @onclick="@(async () => await LoadAsync())" type="button" class="btn btn-outline-primary deliveryButton">
         @if (isLoading)
         {
@@ -64,24 +65,24 @@ else
                     <div style="padding:1rem;">
                         <table class="table table-bordered">
                             <thead>
-                            <tr>
-                                <th scope="col">Código</th>
-                                <th scope="col">Requeridos</th>
-                                <th scope="col">Despacho</th>
-                            </tr>
+                                <tr>
+                                    <th scope="col">Código</th>
+                                    <th scope="col">Requeridos</th>
+                                    <th scope="col">Despacho</th>
+                                </tr>
                             </thead>
                             <tbody>
-                            @if (_deliveryController.totalProductsToScan > 0)
-                            {
-                                @foreach (ProductEntity product in _deliveryController.productsOrder)
+                                @if (_deliveryController.totalProductsToScan > 0)
                                 {
-                                    <tr>
-                                        <td>@product.code</td>
-                                        <td>@product.requested</td>
-                                        <td>@product.quantity</td>
-                                    </tr>
+                                    @foreach (ProductEntity product in _deliveryController.productsOrder)
+                                    {
+                                        <tr>
+                                            <td>@product.code</td>
+                                            <td>@product.requested</td>
+                                            <td>@product.quantity</td>
+                                        </tr>
+                                    }
                                 }
-                            }
                             </tbody>
                         </table>
                     </div>
@@ -144,7 +145,7 @@ else
 
     private string _item;
     private readonly List<string> _items = new();
-    private readonly DeliveryController _deliveryController = new();
+    private DeliveryController _deliveryController;
 
     /** Manage FrontEnd objects**/
     private bool _showPage;
@@ -153,11 +154,11 @@ else
     private bool isClosing { get; set; }
     private bool isSaving { get; set; }
 
-
     /** Manage Methods**/
     private async Task LoadAsync()
     {
         isLoading = true;
+        _deliveryController = new DeliveryController(sessionService);
         await api.Unprocess(_orderNumber.ToString());
         _deliveryController.SetDeliveryController(await api.Load(_orderNumber.ToString()), _orderNumber);
         await Task.Delay(2000); // Example async operation
@@ -170,8 +171,8 @@ else
         if (!string.IsNullOrWhiteSpace(_item))
         {
             var message = _deliveryController.SetProductsDispatched(_item);
-            
-            if (message == "producto no requerido" || message == "producto no encontrado")
+
+            if (message == "Producto no solicitado" || message == "Producto no encontrado" || message == "Error de ejecución")
                 JsCalledMethod("wrongItem");
             _items.Add(_item + " " + message);
         }

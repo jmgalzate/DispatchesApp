@@ -5,33 +5,27 @@ namespace FioryApp.Controller;
 
 public class DeliveryController
 {
-    private OrderEntity orderObj { get; set; }
-    public OrderEntity dispatchObj { get; set; }
-    public int orderNumber { get; set; }
+    public OrderEntity orderObj { get; set; }
+    public OrderEntity dispatchObj { get; private set; }
 
     public int totalProductsToScan { get; private set; }
     public int totalProductsScanned { get; private set; }
     public decimal efficiency { get; private set; }
     public List<ProductEntity> productsOrder { get; private set; }
-    public List<OrderProduct> productsDispatch { get; set; } //Pending to Set
+    private List<OrderProduct> productsDispatch { get; set; } //Pending to Set
 
 
-    private readonly SessionService _sessionService = new();
+    private readonly SessionService _sessionService;
+    private readonly List<ProductEntity> _productList;
 
-    /**
-     * TODO: create the methods for handling the user request in the interface and the business logic.
-     * - [x] Create the method for setting the products order.
-     * - [x] Create the method for setting the products dispatch.
-     * - [ ] Create the method for update the dispatch with the new list of products
-     */
-
-    public DeliveryController()
+    public DeliveryController(SessionService sessionService)
     {
+        _sessionService = sessionService;
+        _productList = _sessionService.productsList;
     }
 
     public void SetDeliveryController(OrderEntity contapymeOrder, int order)
     {
-        orderNumber = order;
 
         LoggerService.CreateLogFile().GetAwaiter().GetResult();
         LoggerService.Info("Scan Operation: the operation for scanning is started for order " + order);
@@ -47,6 +41,8 @@ public class DeliveryController
             listaproductos = null,
             qoprsok = orderObj.qoprsok
         };
+
+        productsDispatch = new List<OrderProduct>();
     }
 
     public void SetDispatch()
@@ -84,69 +80,114 @@ public class DeliveryController
 
     public string SetProductsDispatched(string targetBarcode)
     {
-
-        ProductEntity foundProduct =
-            _sessionService.productsList.FirstOrDefault(product => product.barcode == targetBarcode);
-
-        if (foundProduct != null)
+        string message = "";
+        try
         {
-            // Check if the product exists in the Order
-            ProductEntity foundOrderProduct =
-                productsOrder.FirstOrDefault(product => product.code == foundProduct.code);
-            if (foundOrderProduct != null)
+            // Step 1: Find the product in the Master Data
+            ProductEntity foundProduct = _productList.FirstOrDefault(product => product.barcode == targetBarcode);
+
+            if (foundProduct != null)
             {
-                // Check if the product exists in the Dispatch
-                OrderProduct foundDispatchProduct =
-                    productsDispatch.FirstOrDefault(product => product.irecurso == foundProduct.code);
-                if (foundDispatchProduct != null)
+                // Step 2: Find the product in the Order List
+                OrderProduct foundProductInOrder = orderObj.listaproductos.FirstOrDefault(product => product.irecurso == foundProduct.code);
+
+                if (foundProductInOrder != null)
                 {
-                    // If the product exists in the Dispatch then sum 1 to quantity
-                    foundDispatchProduct.qrecurso++;
+                    if (productsDispatch.Count == 0)
+                    {
+                        productsDispatch.Add(new OrderProduct
+                        {
+                            irecurso = foundProductInOrder.irecurso,
+                            itiporec = foundProductInOrder.itiporec,
+                            icc = foundProductInOrder.icc,
+                            sobserv = foundProductInOrder.sobserv,
+                            dato1 = foundProductInOrder.dato1,
+                            dato2 = foundProductInOrder.dato2,
+                            dato3 = foundProductInOrder.dato3,
+                            dato4 = foundProductInOrder.dato4,
+                            dato5 = foundProductInOrder.dato5,
+                            dato6 = foundProductInOrder.dato6,
+                            iinventario = foundProductInOrder.iinventario,
+                            qrecurso = foundProductInOrder.qrecurso,
+                            mprecio = foundProductInOrder.mprecio,
+                            qporcdescuento = foundProductInOrder.qporcdescuento,
+                            qporciva = foundProductInOrder.qporciva,
+                            mvrtotal = foundProductInOrder.mvrtotal,
+                            valor1 = foundProductInOrder.valor1,
+                            valor2 = foundProductInOrder.valor2,
+                            valor3 = foundProductInOrder.valor3,
+                            valor4 = foundProductInOrder.valor4,
+                            qrecurso2 = foundProductInOrder.qrecurso2,
+                        });
+                    }
+                    else
+                    {
+                        int foundProductIndex = productsDispatch.FindIndex(product => product.irecurso == foundProduct.code);
+
+                        if (foundProductIndex >= 0)
+                        {
+                            productsDispatch[foundProductIndex].qrecurso = productsDispatch[foundProductIndex].qrecurso + 1;
+                            decimal newPrice = productsDispatch[foundProductIndex].qrecurso *
+                                productsDispatch[foundProductIndex]
+                                .mprecio;
+
+                            decimal discount = productsDispatch[foundProductIndex].qporcdescuento / 100;
+                            productsDispatch[foundProductIndex].mvrtotal = newPrice - (newPrice * discount);
+
+                        }
+                        else
+                        {
+                            productsDispatch.Add(new OrderProduct
+                            {
+                                irecurso = foundProductInOrder.irecurso,
+                                itiporec = foundProductInOrder.itiporec,
+                                icc = foundProductInOrder.icc,
+                                sobserv = foundProductInOrder.sobserv,
+                                dato1 = foundProductInOrder.dato1,
+                                dato2 = foundProductInOrder.dato2,
+                                dato3 = foundProductInOrder.dato3,
+                                dato4 = foundProductInOrder.dato4,
+                                dato5 = foundProductInOrder.dato5,
+                                dato6 = foundProductInOrder.dato6,
+                                iinventario = foundProductInOrder.iinventario,
+                                qrecurso = foundProductInOrder.qrecurso,
+                                mprecio = foundProductInOrder.mprecio,
+                                qporcdescuento = foundProductInOrder.qporcdescuento,
+                                qporciva = foundProductInOrder.qporciva,
+                                mvrtotal = foundProductInOrder.mvrtotal,
+                                valor1 = foundProductInOrder.valor1,
+                                valor2 = foundProductInOrder.valor2,
+                                valor3 = foundProductInOrder.valor3,
+                                valor4 = foundProductInOrder.valor4,
+                                qrecurso2 = foundProductInOrder.qrecurso2,
+                            });
+                        }
+                    }
+
+                    productsOrder[productsOrder.FindIndex(product => product.code == foundProduct.code)].quantity++;
                     totalProductsScanned++;
-                    decimal result = (decimal)totalProductsScanned / totalProductsScanned;
-                    efficiency = Math.Round(result, 3);
-                    return targetBarcode + "producto sumado";
+                    efficiency = (decimal)totalProductsScanned / totalProductsToScan;
+
+                    message = "Producto agregado";
                 }
                 else
                 {
-                    // If the product does not exist in the Dispatch then add the product to Dispatch
-
-                    /**
-                     * TODO:
-                     * - [ ] Compare the FoundProduct with the productsOrder and add in ProductsToDispatch all the attributes
-                     * - [ ] Calculate the new mvrtotal for the product
-                     *
-                     *   int nRecurso = x.quantity;
-                        decimal vlr = nRecurso * y.mprecio;
-                        decimal dcto = y.qporcdescuento / 100;
-                        decimal vlrDescuento = dcto * vlr;
-                        mvrtotal = (vlr - vlrDescuento),
-                     */
-
-                    OrderProduct newDispatchProduct = new()
-                    {
-                        irecurso = foundProduct.code,
-                        qrecurso = 1
-
-                    };
-                    
-                    productsDispatch.Add(newDispatchProduct);
-                    totalProductsScanned++;
-                    decimal result = (decimal)totalProductsScanned / totalProductsScanned;
-                    efficiency = Math.Round(result, 3);
-                    return "producto agregado";
+                    message = "Producto no solicitado";
                 }
             }
             else
             {
-                // If the product does not exist in the Order then return a message
-                return targetBarcode + "producto no requerido";
+                message = "Producto no encontrado";
             }
+        
         }
-        else
+        catch (Exception e)
         {
-            // If the product does not exist in Master Data then return a message
-            return targetBarcode + "producto no encontrado";
+            LoggerService.Warning("Scanning: " + e.Message);
+            message = "Error de ejecución";
         }
+
+        return message;
     }
+
 }
