@@ -1,4 +1,5 @@
 ﻿using FioryApp.Entity;
+using FioryApp.src.Entity;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -171,7 +172,6 @@ public class ContapymeService
         
         agentkey = data.keyagente;
         return data.keyagente;
-        
     }
 
     public async Task CloseAgentAsync()
@@ -189,11 +189,10 @@ public class ContapymeService
     public async Task Unprocess(string orderNumber)
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-
-        Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
+        ContapymeParameters objParams = new ContapymeParameters
         {
-            { "accion", "UNPROCESS" },
-            { "operaciones", _getOperations(orderNumber) }
+            accion = "UNPROCESS",
+            operaciones = _getOperations(orderNumber),
         };
 
         string objSend = JsonConvert.SerializeObject(objParams, Formatting.None);
@@ -211,10 +210,10 @@ public class ContapymeService
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
 
-        Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
+        ContapymeParameters objParams = new ContapymeParameters
         {
-            { "accion", "LOAD" },
-            { "operaciones", _getOperations(orderNumber) }
+            accion = "LOAD",
+            operaciones = _getOperations(orderNumber),
         };
 
         string objSend = JsonConvert.SerializeObject(objParams, Formatting.None);
@@ -232,13 +231,11 @@ public class ContapymeService
     public async Task Save(string orderNumber, OrderEntity order)
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-
-        string orderJson = JsonConvert.SerializeObject(order);
-        Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
+        ContapymeParametersSave objParams = new ContapymeParametersSave
         {
-            { "accion", "SAVE" },
-            { "operaciones", _getOperations(orderNumber) },
-            { "oprdata", orderJson }
+            accion = "SAVE",
+            operaciones = _getOperations(orderNumber),
+            oprdata = order
         };
 
         string objSend = JsonConvert.SerializeObject(objParams, Formatting.None);
@@ -255,13 +252,11 @@ public class ContapymeService
     public async Task Taxes(string orderNumber, OrderEntity order)
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-
-        string orderJson = JsonConvert.SerializeObject(order);
-        Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
+        ContapymeParametersSave objParams = new ContapymeParametersSave
         {
-            { "accion", "CALCULAR IMPUESTOS" },
-            { "operaciones", _getOperations(orderNumber) },
-            { "oprdata", orderJson }
+            accion = "CALCULAR IMPUESTOS",
+            operaciones = _getOperations(orderNumber),
+            oprdata = order
         };
 
         string objSend = JsonConvert.SerializeObject(objParams, Formatting.None);
@@ -278,11 +273,10 @@ public class ContapymeService
     public async Task Process(string orderNumber)
     {
         Uri endpoint = new Uri(_connectionInformation.server + "datasnap/rest/TCatOperaciones/\"DoExecuteOprAction\"/");
-
-        Dictionary<string, dynamic> objParams = new Dictionary<string, dynamic>
+        ContapymeParameters objParams = new ContapymeParameters
         {
-            { "accion", "PROCESS" },
-            { "operaciones", _getOperations(orderNumber) }
+            accion = "PROCESS",
+            operaciones = _getOperations(orderNumber),
         };
 
         string objSend = JsonConvert.SerializeObject(objParams, Formatting.None);

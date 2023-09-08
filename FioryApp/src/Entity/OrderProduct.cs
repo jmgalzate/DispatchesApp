@@ -38,7 +38,7 @@ public class OrderProduct
             dato4 = this.dato4,
             dato5 = this.dato5,
             dato6 = this.dato6,
-            iinventario = this.iinventario.ToString(), // Convert Int32 to string
+            iinventario = this.iinventario!.ToString(), // Convert Int32 to string
             qrecurso = this.qrecurso.ToString(), // Convert Int32 to string
             mprecio = this.mprecio.ToString(), // Convert decimal to string
             qporcdescuento = this.qporcdescuento.ToString(), // Convert decimal to string
