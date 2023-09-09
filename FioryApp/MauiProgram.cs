@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using FioryApp.Service;
+﻿using FioryApp.Service;
 
 namespace FioryApp;
 
@@ -22,7 +21,6 @@ public static class MauiProgram
 
 #if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
-		builder.Logging.AddDebug();
 #endif
 		return builder.Build();
 	}
