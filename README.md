@@ -2,10 +2,9 @@
 Fiory App is an application created for improve a process that Fiory warehouse executed before manually by Excel file.
 
 # External Connection:
-The application has a "Library" for getting connections with the Contapyme API
+The application has a "Library" for getting connections with the Contapyme API and it is stored in the SRC folder.
 
 # Relevant information:
-- There is a CLI project because the first version to this application was a Command application.
 - The certificate is a Self Certificate
 - It was build with MAUI and Blazor for multiplatform application.
 
@@ -20,5 +19,6 @@ The application has a "Library" for getting connections with the Contapyme API
     "Password": "password encrypted",
     "MachineID": "Whatever",
     "iapp": "ID provided by Contapyme",
-    "itdoper": "Order Type"
+    "itdoper": "Order Type",
+    "cantProducts": 5
 }
