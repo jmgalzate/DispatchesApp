@@ -1,14 +1,13 @@
 ###> LOCAL FOLDER
 .DS_Store
-FioryApp/Resources/.DS_Store
+DispatchesApp/Resources/.DS_Store
+*/.DS_Store
 
 .DS_Store/
 .idea/
 .vs/
 .vscode/
-FioryApp/.DS_Store
-FioryCLI/.DS_Store
-FioryLibrary/.DS_Store
+DispatchesApp/.DS_Store
 
 ###< END LOCAL FOLDERS
 
@@ -16,16 +15,8 @@ FioryLibrary/.DS_Store
 obj/
 bin/
 
-FioryApp/bin/
-FioryApp/obj/
-FioryApp/.idea/
-
-FioryCli/bin/
-FioryCli/obj/
-FioryCli/.idea/
-
-FioryLibrary/bin/
-FioryLibrary/obj/
-FioryLibrary/.idea/
+DispatchesApp/bin/
+DispatchesApp/obj/
+DispatchesApp/.idea/
 
 ###<END PROJECT FILES

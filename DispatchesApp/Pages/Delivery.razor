@@ -1,0 +1,221 @@
+﻿@page "/Delivery"
+
+@using DispatchesApp.Service
+@using DispatchesApp.Entity
+@using DispatchesApp.Controller
+
+@inject NavigationManager navManager
+@inject IJSRuntime jsRuntime
+@inject ContapymeService api
+@inject SessionService sessionService
+
+<audio id="wrongItem">
+    <source src="audio/notaded.mp3">
+    Your browser does not support the audio element.
+</audio>
+
+@if (_showPage == false)
+{
+    <input type="number" @bind="_orderNumber" @bind:event="oninput" />
+    <button disabled="@isLoading" @onclick="@(async () => await LoadAsync())" type="button" class="btn btn-outline-primary deliveryButton">
+        @if (isLoading)
+        {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span>Loading...</span>
+        }
+        else
+        {
+            <span>Cargar</span>
+        }
+    </button>
+}
+else
+{
+    <button disabled="@isClosing" @onclick="@(async () => await CloseAsync())" type="button" class="btn btn-outline-success deliveryButton">
+        @if (isClosing)
+        {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span>Loading...</span>
+        }
+        else
+        {
+            <span>Cerrar sin Guardar</span>
+        }
+    </button>
+    <button disabled="@isSaving" @onclick="@(async () => await SaveAsync())" type="button" class="btn btn-outline-warning deliveryButton">
+        @if (isSaving)
+        {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span>Loading...</span>
+        }
+        else
+        {
+            <span>Guardar y Cerrar</span>
+        }
+    </button>
+    <div class="container text-center" style="margin-top: 20px;">
+        <div class="row">
+            <div class="col" id="dispatchContainer" style="margin-bottom: 10px;">
+                <div class="row">
+                    <div class="card">
+                        <h5 class="card-title">Número de Orden: @_orderNumber</h5>
+                    </div>
+                </div>
+                <div class="row">
+                    <div style="padding:1rem;">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Código</th>
+                                    <th scope="col">Requeridos</th>
+                                    <th scope="col">Despacho</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (_deliveryController.totalProductsToScan > 0)
+                                {
+                                    @foreach (ProductEntity product in _deliveryController.productsRequested)
+                                    {
+                                        <tr>
+                                            <td>@product.code</td>
+                                            <td>@product.requested</td>
+                                            <td>@product.quantity</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                Solicitados: @_deliveryController.totalProductsToScan
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                Despachados: @_deliveryController.totalProductsScanned
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="card">
+                        <div class="card-body">
+                            Eficiencia: @_deliveryController.efficiency %
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col" id="dispatchContainer">
+                <div class="row">
+                    <form @onsubmit="Enter">
+                        <div class="input-group input-group-md mb-2">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">EAN:</span>
+                            <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-md" @bind="_item">
+                        </div>
+                    </form>
+                </div>
+                <div class="row justify-content-md-center">
+                    <div class="col-md-auto">
+                        <div class="card" style="width: 23rem;">
+                            <ul class="list-group list-group-flush">
+                                @foreach (string item in _items)
+                                {
+                                    <li class="list-group-item">@item</li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code{
+
+    /** Manage Bind Variables**/
+    private int _orderNumber;
+
+    private string _item;
+    private readonly List<string> _items = new();
+    private DeliveryController _deliveryController;
+
+    /** Manage FrontEnd objects**/
+    private bool _showPage;
+
+    private bool isLoading { get; set; }
+    private bool isClosing { get; set; }
+    private bool isSaving { get; set; }
+
+    /** Manage Methods**/
+    private async Task LoadAsync()
+    {
+        isLoading = true;
+        _deliveryController = new DeliveryController(sessionService);
+        await api.Unprocess(_orderNumber.ToString());
+        _deliveryController.SetDeliveryController(await api.Load(_orderNumber.ToString()), _orderNumber);
+        await Task.Delay(2000); // Example async operation
+        isLoading = false;
+        _showPage = true;
+    }
+
+    private void Enter()
+    {
+        List<string> validMessages = new List<string>
+        {
+            "Producto no solicitado",
+            "Producto no encontrado",
+            "Error de ejecución",
+            "Producto ya completado"
+        };
+        
+        if (!string.IsNullOrWhiteSpace(_item))
+        {
+            var message = _deliveryController.SetProductsDispatched(_item);
+            
+            if (validMessages.Contains(message))
+                JsCalledMethod("wrongItem");
+            _items.Add(_item + " " + message);
+        }
+        _item = string.Empty;
+    }
+
+    private async Task CloseAsync()
+    {
+        isClosing = true;
+        LoggerService.Info("Scan Operation: order " + _orderNumber + " closed without save changes in Contapyme.");
+        _deliveryController.SetDispatch(_orderNumber);
+        await api.Process(_orderNumber.ToString());
+        isClosing = false;
+        GoToDispatch();
+    }
+
+    private async Task SaveAsync()
+    {
+        isSaving = true;
+        LoggerService.Info("Scan Operation: order " + _orderNumber + " saved in Contapyme");
+        _deliveryController.SetDispatch(_orderNumber);
+
+        await api.Save(_orderNumber.ToString(), _deliveryController.dispatchObj);
+        await api.Taxes(_orderNumber.ToString(), _deliveryController.dispatchObj);
+
+        await api.Process(_orderNumber.ToString());
+        isSaving = false;
+        GoToDispatch();
+    }
+
+    private void GoToDispatch() => navManager.NavigateTo("/");
+
+    private void JsCalledMethod(string idElement)
+    {
+        jsRuntime.InvokeVoidAsync("playAudio", idElement);
+    }
+
+}
