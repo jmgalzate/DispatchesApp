@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 25.0.1706.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DispatchesApp", "DispatchesApp\DispatchesApp.csproj", "{E6425829-43EC-44F4-92E5-E32F37A5A899}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DispatchesApp", "DispatchesApp.csproj", "{FFE76A95-DBDB-4028-9BBD-42C3414E798D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,10 +15,10 @@ Global
 		{9BA7466E-6D50-4E58-B715-707D101F9A3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9BA7466E-6D50-4E58-B715-707D101F9A3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9BA7466E-6D50-4E58-B715-707D101F9A3E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E6425829-43EC-44F4-92E5-E32F37A5A899}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E6425829-43EC-44F4-92E5-E32F37A5A899}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E6425829-43EC-44F4-92E5-E32F37A5A899}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E6425829-43EC-44F4-92E5-E32F37A5A899}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFE76A95-DBDB-4028-9BBD-42C3414E798D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFE76A95-DBDB-4028-9BBD-42C3414E798D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFE76A95-DBDB-4028-9BBD-42C3414E798D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFE76A95-DBDB-4028-9BBD-42C3414E798D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
