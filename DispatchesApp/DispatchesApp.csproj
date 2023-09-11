@@ -17,12 +17,12 @@
         <ApplicationTitle>DispatchesApp</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.companyname.dispatchesapp</ApplicationId>
+        <ApplicationId>com.sigi.dispatchesapp</ApplicationId>
         <ApplicationIdGuid>7EB99F24-0822-43A4-BB90-CD947FC4B6D5</ApplicationIdGuid>
 
         <!-- Versions -->
-        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-        <ApplicationVersion>1</ApplicationVersion>
+        <ApplicationDisplayVersion>2.1</ApplicationDisplayVersion>
+        <ApplicationVersion>2</ApplicationVersion>
 
         <!--<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>-->
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
@@ -37,6 +37,9 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-maccatalyst|AnyCPU'">
       <CreatePackage>false</CreatePackage>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+      <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <ItemGroup>
         <!-- App Icon -->
