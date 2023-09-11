@@ -2,9 +2,9 @@ name: Build .NET MAUI Windows
 
 on:
   push:
-    branches: [ "GithubDeploy" ]
+    branches: [ "DispatchesApp" ]
   pull_request:
-    branches: [ "GithubDeploy" ]
+    branches: [ "DispatchesApp" ]
 
 jobs:
   build:
