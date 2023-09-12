@@ -135,7 +135,7 @@ public class DeliveryController
                         productsRequested[productsRequested.FindIndex(product => product.code == foundProduct.code)]
                             .quantity++;
                         totalProductsScanned++;
-                        efficiency = Math.Round((decimal)totalProductsScanned / totalProductsToScan, 3);
+                        efficiency = Math.Round((decimal)totalProductsScanned / totalProductsToScan, 3)*100;
                     }
                     else
                     {
@@ -197,7 +197,7 @@ public class DeliveryController
                         productsRequested[productsRequested.FindIndex(product => product.code == foundProduct.code)]
                             .quantity++;
                         totalProductsScanned++;
-                        efficiency = Math.Round((decimal)totalProductsScanned / totalProductsToScan, 3);
+                        efficiency = Math.Round((decimal)totalProductsScanned / totalProductsToScan, 3)*100;
                         message = "Producto agregado";
                     }
                 }
