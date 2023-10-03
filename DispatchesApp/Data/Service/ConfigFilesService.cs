@@ -14,7 +14,7 @@ public class ConfigFilesService
 
         switch (os) {
             case "MacOS":
-                path = $"{s}Users{s}{Environment.UserName}{s}projects{s}masterdata{s}Fiory{s}{file}";
+                path = $"{s}Users{s}{Environment.UserName}{s}documents{s}projects{s}masterdata{s}Fiory{s}{file}";
                 break;
             case "Windows":
                 path = $"C:{s}programdata{s}FioryApp{s}Masterfiles{s}{file}";
