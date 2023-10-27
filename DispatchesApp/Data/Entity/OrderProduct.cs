@@ -38,12 +38,12 @@ public class OrderProduct
             dato4 = this.dato4,
             dato5 = this.dato5,
             dato6 = this.dato6,
-            iinventario = this.iinventario!.ToString(), // Convert Int32 to string
-            qrecurso = this.qrecurso.ToString(), // Convert Int32 to string
-            mprecio = this.mprecio.ToString(), // Convert decimal to string
-            qporcdescuento = this.qporcdescuento.ToString(), // Convert decimal to string
+            iinventario = Convert.ToInt32(this.iinventario).ToString(), // Convert Int32 to string
+            qrecurso = Convert.ToInt32(this.qrecurso).ToString(), // Convert Int32 to string
+            mprecio = Convert.ToInt32(this.mprecio).ToString(), // Convert decimal to string
+            qporcdescuento = Convert.ToInt32(this.qporcdescuento).ToString(), // Convert decimal to string
             qporciva = this.qporciva,
-            mvrtotal = this.mvrtotal.ToString(), // Convert decimal to string
+            mvrtotal = Convert.ToInt32(this.mvrtotal).ToString(), // Convert decimal to string
             valor1 = this.valor1,
             valor2 = this.valor2,
             valor3 = this.valor3,
