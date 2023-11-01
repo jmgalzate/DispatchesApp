@@ -31,7 +31,7 @@ public class DeliveryController
         ConfigFilesService.ExportFile(orderObj, "actual", order);
 
         SetProductsOrder(orderObj.listaproductos);
-        productsInOrder = orderObj.listaproductos!.Select(op => op.ToOrderProduct()).ToList();
+        productsInOrder = orderObj.listaproductos!;
 
         dispatchObj = new OrderEntity
         {
@@ -53,16 +53,14 @@ public class DeliveryController
 
     public void SetDispatch(int order)
     {
-        List<OrderProductStrings> productsDispatchStrings =
-            productsDispatch.Select(op => op.ToOrderProductStrings()).ToList();
-        dispatchObj.listaproductos = productsDispatchStrings;
+        dispatchObj.listaproductos = productsDispatch;
         dispatchObj.encabezado!.iusuarioult = "WEBAPI";
         ConfigFilesService.ExportFile(dispatchObj, "nuevo", order);
         ConfigFilesService.ExportReport(dispatchObj.datosprincipales!.init, dispatchObj.encabezado!.fcreacion, order,
             efficiency, productsRequested);
     }
 
-    private void SetProductsOrder(List<OrderProductStrings> products)
+    private void SetProductsOrder(List<OrderProduct> products)
     {
         // Step 1: Group and Sum Duplicates in the First Object
         var groupedProducts = products
@@ -70,7 +68,7 @@ public class DeliveryController
             .Select(group => new OrderProduct
             {
                 irecurso = group.Key,
-                qrecurso = group.Sum(p => Int32.Parse(p.qrecurso!))
+                qrecurso = group.Sum(p => p.qrecurso!)
             })
             .ToList();
 
