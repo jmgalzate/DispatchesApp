@@ -23,32 +23,4 @@ public class OrderProduct
     public string? valor3 { get; init; }
     public string? valor4 { get; init; }
     public string? qrecurso2 { get; init; }
-    
-    public OrderProductStrings ToOrderProductStrings()
-    {
-        return new OrderProductStrings
-        {
-            irecurso = this.irecurso,
-            itiporec = this.itiporec,
-            icc = this.icc,
-            sobserv = this.sobserv,
-            dato1 = this.dato1,
-            dato2 = this.dato2,
-            dato3 = this.dato3,
-            dato4 = this.dato4,
-            dato5 = this.dato5,
-            dato6 = this.dato6,
-            iinventario = Convert.ToInt32(this.iinventario).ToString(),
-            qrecurso = Convert.ToInt32(this.qrecurso).ToString(),
-            mprecio = Convert.ToInt32(this.mprecio).ToString(),
-            qporcdescuento = Convert.ToInt32(this.qporcdescuento).ToString(),
-            qporciva = this.qporciva,
-            mvrtotal = Convert.ToInt32(this.mvrtotal).ToString(),
-            valor1 = this.valor1,
-            valor2 = this.valor2,
-            valor3 = this.valor3,
-            valor4 = this.valor4,
-            qrecurso2 = this.qrecurso2,
-        };
-    }
 }
